@@ -1,71 +1,82 @@
-<!DOCTYPE html>
+<div class="product-gallery">
 
-<html>
-
-<head>
-
-<title>{{product.name}}</title>
-
-</head>
+    <button class="prev" onclick="changeImage(-1)">
+        ❮
+    </button>
 
 
-<body>
+    <img id="mainImage"
+    src="{{product.image.url}}"
+    class="main-image">
 
 
-<h1>
-
-{{product.name}}
-
-</h1>
+    <button class="next" onclick="changeImage(1)">
+        ❯
+    </button>
 
 
+    <div class="dots">
 
-<img src="{{product.image.url}}" width="300">
+        <span onclick="setImage(0)">●</span>
+        <span onclick="setImage(1)">●</span>
+        <span onclick="setImage(2)">●</span>
+        <span onclick="setImage(3)">●</span>
 
+    </div>
 
-
-<h3>
-
-Price: ₹{{product.price}}
-
-</h3>
-
-
-<p>
-
-{{product.description}}
-
-</p>
+</div>
 
 
+<script>
 
-<p>
+let images = [
 
-Brand:
+"{{product.image.url}}",
 
-{{product.brand}}
+"/media/products/demo2.jpg",
 
-</p>
+"/media/products/demo3.jpg",
 
+"/media/products/demo4.jpg"
 
-<p>
-
-Stock:
-
-{{product.stock}}
-
-</p>
+];
 
 
-
-<button>
-
-Add To Cart
-
-</button>
+let index = 0;
 
 
+function changeImage(value){
 
-</body>
+    index += value;
 
-</html>
+
+    if(index >= images.length){
+
+        index = 0;
+
+    }
+
+
+    if(index < 0){
+
+        index = images.length-1;
+
+    }
+
+
+    document.getElementById("mainImage").src = images[index];
+
+}
+
+
+
+function setImage(i){
+
+    index=i;
+
+    document.getElementById("mainImage").src = images[index];
+
+}
+
+
+</script>
