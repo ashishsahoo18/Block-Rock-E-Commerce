@@ -1,0 +1,17 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Block Rock E-Commerce — technology selected for everyday momentum.">
+  <title>{% block title %}Block Rock E-Commerce{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  {% include 'includes/navbar.html' %}
+  <main>{% block content %}{% endblock %}</main>
+  {% include 'includes/footer.html' %}
+  <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
