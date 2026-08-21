@@ -16,18 +16,41 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.http import HttpResponse
+from django.shortcuts import render
+from django.conf import settings
+from django.conf.urls.static import static
+from products.models import Product
 
 
 def home(request):
-    return HttpResponse("Welcome to Block Rock E-Commerce")
+    products = Product.objects.all().order_by('-created_at')
+    featured_products = products[:4]
+    deal_product = products.filter(discount__gt=0).order_by('-discount').first()
+    if not deal_product:
+        deal_product = products.first()
+
+    category_names = list(
+        products.exclude(category='')
+        .values_list('category', flat=True)
+        .distinct()[:9]
+    )
+    fallback_categories = [
+        'Smartphones', 'Laptops', 'Headphones', 'Smartwatches', 'Cameras',
+        'Gaming', 'Accessories', 'Audio', 'Drones',
+    ]
+
+    return render(request, 'home.html', {
+        'featured_products': featured_products,
+        'deal_product': deal_product,
+        'categories': category_names or fallback_categories,
+    })
 
 
 urlpatterns = [
 
     path('admin/', admin.site.urls),
 
-    path('', home),   # Home page
+    path('', home, name='home'),
 
     path('accounts/', include('accounts.urls')),
 
@@ -38,3 +61,6 @@ urlpatterns = [
     path('orders/', include('orders.urls')),
 
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
