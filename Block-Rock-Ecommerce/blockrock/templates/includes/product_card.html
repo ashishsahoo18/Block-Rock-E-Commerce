@@ -1,0 +1,7 @@
+<article class="product-card">
+  <a class="product-image" href="{% url 'product_detail' product.id %}">
+    {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span class="product-placeholder">✦</span>{% endif %}
+    {% if product.discount %}<span class="discount-badge">-{{ product.discount }}%</span>{% endif %}
+  </a>
+  <div class="product-info"><p class="product-brand">{{ product.brand|default:'BLOCK ROCK SELECT' }}</p><h3><a href="{% url 'product_detail' product.id %}">{{ product.name }}</a></h3><p class="product-description">{{ product.description|truncatechars:56 }}</p><div class="rating"><span>★</span> {{ product.rating|floatformat:1 }} <small>verified rating</small></div><div class="product-bottom"><strong>₹{{ product.price }}</strong><a class="cart-icon" href="{% url 'products' %}" aria-label="View products">＋</a></div></div>
+</article>
