@@ -19,30 +19,24 @@ from django.urls import path, include
 from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
-from products.models import Product
+from products.models import Category, Product
 
 
 def home(request):
-    products = Product.objects.all().order_by('-created_at')
-    featured_products = products[:4]
-    deal_product = products.filter(discount__gt=0).order_by('-discount').first()
-    if not deal_product:
-        deal_product = products.first()
-
-    category_names = list(
-        products.exclude(category='')
-        .values_list('category', flat=True)
-        .distinct()[:9]
+    featured_products = (
+        Product.objects.filter(is_featured=True, is_active=True)
+        .select_related('category')[:4]
     )
-    fallback_categories = [
-        'Smartphones', 'Laptops', 'Headphones', 'Smartwatches', 'Cameras',
-        'Gaming', 'Accessories', 'Audio', 'Drones',
-    ]
+    deal_product = (
+        Product.objects.filter(is_deal=True, is_active=True)
+        .select_related('category').first()
+    )
+    categories = Category.objects.filter(is_active=True)[:9]
 
     return render(request, 'home.html', {
         'featured_products': featured_products,
         'deal_product': deal_product,
-        'categories': category_names or fallback_categories,
+        'categories': categories,
     })
 
 
@@ -52,11 +46,15 @@ urlpatterns = [
 
     path('', home, name='home'),
 
+    path('shop/', include('products.urls')),
+
     path('accounts/', include('accounts.urls')),
 
     path('products/', include('products.urls')),
 
     path('cart/', include('cart.urls')),
+
+    path('wishlist/', include('cart.wishlist_urls')),
 
     path('orders/', include('orders.urls')),
 
