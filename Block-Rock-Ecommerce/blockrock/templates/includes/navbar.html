@@ -1,15 +1,1 @@
-<header class="site-header">
-  <div class="container nav-wrap">
-    <a class="brand" href="{% url 'home' %}" aria-label="Block Rock home"><span class="brand-mark">BR</span><span>BLOCK ROCK</span></a>
-    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>☰</button>
-    <nav class="primary-nav" data-primary-nav>
-      <a class="active" href="{% url 'home' %}">Home</a><a href="{% url 'products' %}">Shop</a><a href="#categories">Categories</a><a href="#deals">Deals</a><a href="#about">About</a><a href="#footer">Contact</a>
-    </nav>
-    <div class="nav-actions">
-      <a href="#footer" class="desktop-link">⌾ Track order</a>
-      <a href="#top-picks" aria-label="Wishlist">♡ <span class="desktop-link">Wishlist</span></a>
-      <a href="{% url 'products' %}" aria-label="Cart">🛒 <span class="desktop-link">Cart</span></a>
-      {% if user.is_authenticated %}<a class="account-link" href="#">Hi, {{ user.username }}</a>{% else %}<a class="button button-small" href="{% url 'login' %}">Sign in</a>{% endif %}
-    </div>
-  </div>
-</header>
+<header class="site-header"><div class="container nav-wrap"><a class="brand" href="{% url 'home' %}" aria-label="Block Rock home"><span class="brand-mark">BR</span><span>BLOCK ROCK</span></a><button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>☰</button><nav class="primary-nav" data-primary-nav><a class="active" href="{% url 'home' %}">Home</a><a href="{% url 'products' %}">Shop</a><a href="{% url 'home' %}#categories">Categories</a><a href="{% url 'home' %}#deals">Deals</a><a href="{% url 'home' %}#about">About</a><a href="#footer">Contact</a></nav><div class="nav-actions"><a href="#footer" class="desktop-link">⌾ Track order</a><a href="{% url 'wishlist_detail' %}" aria-label="Wishlist">♡ <span class="desktop-link">Wishlist</span></a><a href="{% url 'cart_detail' %}" class="nav-cart" aria-label="Cart">🛒 <span class="desktop-link">Cart</span>{% if cart_count %}<b>{{ cart_count }}</b>{% endif %}</a>{% if user.is_authenticated %}<a class="account-link" href="#">Hi, {{ user.username }}</a>{% else %}<a class="button button-small" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in</a>{% endif %}</div></div></header>

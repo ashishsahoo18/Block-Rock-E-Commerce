@@ -1,81 +1,10 @@
-<!DOCTYPE html>
-
-<html>
-
-<head>
-
-<title>Products</title>
-
-</head>
-
-
-<body>
-
-
-<h1>Block Rock Products</h1>
-
-
-<form>
-
-<input 
-type="text"
-name="search"
-placeholder="Search product">
-
-
-<button>
-
-Search
-
-</button>
-
-
-</form>
-
-
-
-<hr>
-
-
-
-{% for product in products %}
-
-
-<h2>
-
-<a href="/products/{{product.id}}/">
-
-{{product.name}}
-
-</a>
-
-</h2>
-
-
-<img src="{{product.image.url}}" width="150">
-
-
-<p>
-
-Price: ₹{{product.price}}
-
-</p>
-
-
-<p>
-
-Rating: {{product.rating}}
-
-</p>
-
-
-<hr>
-
-
-{% endfor %}
-
-
-
-</body>
-
-</html>
+{% extends 'base.html' %}
+{% block title %}Shop | Block Rock{% endblock %}
+{% block content %}
+<section class="shop-page container">
+  <div class="shop-heading"><p class="eyebrow">THE COLLECTION</p><h1>Find your next<br><em>favorite device.</em></h1><p>Explore selected technology from trusted names and fresh new makers.</p></div>
+  <form class="shop-filters" method="get"><label><span>Search</span><input type="search" name="search" value="{{ query }}" placeholder="Product or brand"></label><label><span>Category</span><select name="category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></label><label><span>Sort by</span><select name="sort"><option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option><option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option><option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option><option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option></select></label><button class="button" type="submit">Apply filters</button></form>
+  <div class="shop-results"><p>{{ products|length }} product{{ products|length|pluralize }} found{% if selected_category %} in this category{% endif %}.</p><a href="{% url 'products' %}">Clear filters</a></div>
+  {% if products %}<div class="product-grid shop-product-grid">{% for product in products %}{% include 'includes/product_card.html' %}{% endfor %}</div>{% else %}<div class="empty-products"><span>✦</span><h3>{% if selected_category %}No products found in this category.{% else %}No products available yet.{% endif %}</h3><p>Try another search or adjust your filters.</p><a class="button" href="{% url 'products' %}">Browse all products</a></div>{% endif %}
+</section>
+{% endblock %}

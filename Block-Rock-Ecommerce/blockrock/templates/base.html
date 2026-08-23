@@ -10,7 +10,7 @@
 </head>
 <body>
   {% include 'includes/navbar.html' %}
-  <main>{% block content %}{% endblock %}</main>
+  <main>{% if messages %}<div class="container messages">{% for message in messages %}<div class="message {{ message.tags }}">{{ message }}</div>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
   {% include 'includes/footer.html' %}
   <script src="{% static 'js/main.js' %}"></script>
 </body>

@@ -19,4 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     tick(); setInterval(tick, 1000);
   }
+
+  const quantityInput = document.querySelector('[data-quantity-input]');
+  if (quantityInput) {
+    const changeQuantity = (amount) => {
+      const min = Number(quantityInput.min || 1);
+      const max = Number(quantityInput.max || 999);
+      quantityInput.value = Math.min(max, Math.max(min, Number(quantityInput.value || min) + amount));
+    };
+    document.querySelector('[data-quantity-minus]')?.addEventListener('click', () => changeQuantity(-1));
+    document.querySelector('[data-quantity-plus]')?.addEventListener('click', () => changeQuantity(1));
+  }
 });
