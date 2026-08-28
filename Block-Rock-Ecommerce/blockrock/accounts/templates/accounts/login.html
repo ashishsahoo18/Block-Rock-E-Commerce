@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Sign in | Block Rock{% endblock %}
+{% block content %}
+<section class="auth-page"><div class="auth-card"><p class="eyebrow">WELCOME BACK</p><h1>Sign in to <em>Block Rock</em>.</h1><p class="auth-intro">Pick up exactly where you left off.</p><form method="post" class="account-form">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><label for="id_identifier">Email or username<input id="id_identifier" type="text" name="identifier" autocomplete="username" required value="{{ request.POST.identifier|default:'' }}"></label><label for="id_password">Password<input id="id_password" type="password" name="password" autocomplete="current-password" required></label><div class="form-options"><label class="check-label"><input type="checkbox" name="remember_me"> Remember me</label><a href="{% url 'password_reset' %}">Forgot password?</a></div><button class="button button-full" type="submit">Sign in</button></form><p class="auth-switch">Don't have an account? <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Register</a></p></div></section>
+{% endblock %}
