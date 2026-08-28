@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}My account | Block Rock{% endblock %}
+{% block content %}
+<section class="account-page container"><p class="eyebrow">ACCOUNT DASHBOARD</p><h1>Welcome back, <em>{{ user.first_name|default:user.username }}</em>.</h1><p class="account-lead">Your Block Rock activity, in one clear place.</p><div class="dashboard-grid"><a id="orders" class="dashboard-card" href="#"><span>Orders</span><p>My orders</p><strong>{{ orders_count }}</strong><small>Orders are coming soon</small></a><a class="dashboard-card" href="{% url 'wishlist_detail' %}"><span>Wishlist</span><p>Wishlist</p><strong>{{ wishlist_items }}</strong><small>Saved products</small></a><a class="dashboard-card" href="{% url 'cart_detail' %}"><span>Cart</span><p>Cart items</p><strong>{{ cart_items }}</strong><small>Ready when you are</small></a><a class="dashboard-card" href="{% url 'profile' %}"><span>Profile</span><p>Profile</p><strong>Go</strong><small>Manage your details</small></a></div></section>
+{% endblock %}
