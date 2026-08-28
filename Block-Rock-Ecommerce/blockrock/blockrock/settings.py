@@ -130,3 +130,4 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_URL = 'login'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
