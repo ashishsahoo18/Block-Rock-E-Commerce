@@ -1,80 +1,126 @@
-from django.shortcuts import render, redirect
-
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
-
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.views import PasswordResetCompleteView, PasswordResetConfirmView, PasswordResetDoneView, PasswordResetView
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.decorators.http import require_POST
+
+from cart.models import Cart, Wishlist
+
+from .forms import ProfileForm, RegistrationForm
 
 
-def signup(request):
-
-    if request.method == "POST":
-
-        username = request.POST['username']
-
-        email = request.POST['email']
-
-        password = request.POST['password']
+def _safe_next_url(request):
+    next_url = request.POST.get('next') or request.GET.get('next')
+    if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        return next_url
+    return None
 
 
-        user = User.objects.create_user(
-
-            username=username,
-
-            email=email,
-
-            password=password
-
-        )
-
-
-        user.save()
-
-
-        return redirect('login')
-
-
-    return render(request,'signup.html')
-
-
+def register(request):
+    if request.user.is_authenticated:
+        return redirect('account')
+    form = RegistrationForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Your account has been created. Please sign in to continue.')
+        return redirect(f"{reverse_lazy('login')}?next={_safe_next_url(request)}" if _safe_next_url(request) else 'login')
+    return render(request, 'accounts/register.html', {'form': form, 'next': request.GET.get('next', '')})
 
 
 def login_user(request):
-
-    if request.method == "POST":
-
-
-        username = request.POST['username']
-
-        password = request.POST['password']
-
-
-        user = authenticate(
-
-            username=username,
-
-            password=password
-
-        )
-
-
-        if user:
-
-            login(request,user)
-
-            next_url = request.POST.get('next') or request.GET.get('next')
-            if next_url and url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
-                return redirect(next_url)
-            return redirect('/')
+    if request.user.is_authenticated:
+        return redirect(_safe_next_url(request) or 'account')
+    next_url = _safe_next_url(request)
+    if request.method == 'POST':
+        identifier = request.POST.get('identifier', '').strip()
+        password = request.POST.get('password', '')
+        username = identifier
+        if '@' in identifier:
+            matched_user = User.objects.filter(email__iexact=identifier).only('username').first()
+            username = matched_user.username if matched_user else ''
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if not request.POST.get('remember_me'):
+                request.session.set_expiry(0)
+            messages.success(request, f'Welcome back, {user.first_name or user.username}.')
+            return redirect(next_url or 'home')
+        messages.error(request, 'Your username/email or password was not recognised.')
+    return render(request, 'accounts/login.html', {'next': next_url or ''})
 
 
-    return render(request, 'login.html', {'next': request.GET.get('next', '')})
-
-
-
-
+@require_POST
 def logout_user(request):
-
     logout(request)
+    messages.success(request, 'You have been logged out successfully.')
+    return redirect('home')
 
-    return redirect('login')
+
+def _account_stats(user):
+    cart_items = 0
+    wishlist_items = 0
+    try:
+        cart_items = sum(item.quantity for item in Cart.objects.get(user=user).items.all())
+    except Cart.DoesNotExist:
+        pass
+    try:
+        wishlist_items = Wishlist.objects.get(user=user).items.count()
+    except Wishlist.DoesNotExist:
+        pass
+    return {'orders_count': 0, 'cart_items': cart_items, 'wishlist_items': wishlist_items}
+
+
+@login_required
+def account(request):
+    return render(request, 'accounts/account.html', _account_stats(request.user))
+
+
+@login_required
+def profile(request):
+    return render(request, 'accounts/profile.html', _account_stats(request.user))
+
+
+@login_required
+def profile_edit(request):
+    form = ProfileForm(request.POST or None, instance=request.user)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, 'Profile updated successfully.')
+        return redirect('profile')
+    return render(request, 'accounts/profile_edit.html', {'form': form})
+
+
+@login_required
+def profile_password(request):
+    form = PasswordChangeForm(request.user, request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        update_session_auth_hash(request, user)
+        messages.success(request, 'Your password has been changed successfully.')
+        return redirect('profile')
+    return render(request, 'accounts/password_change.html', {'form': form})
+
+
+class AccountPasswordResetView(PasswordResetView):
+    template_name = 'accounts/password_reset.html'
+    email_template_name = 'accounts/password_reset_email.txt'
+    subject_template_name = 'accounts/password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+
+
+class AccountPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'accounts/password_reset_done.html'
+
+
+class AccountPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'accounts/password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+
+class AccountPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'accounts/password_reset_complete.html'
