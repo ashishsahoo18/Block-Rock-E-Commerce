@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Edit profile | Block Rock{% endblock %}
+{% block content %}
+<section class="auth-page"><div class="auth-card"><p class="eyebrow">PROFILE SETTINGS</p><h1>Make it <em>yours</em>.</h1><p class="auth-intro">Your username stays fixed so your account remains easy to recognise.</p><form method="post" class="account-form" novalidate>{% csrf_token %}{{ form.non_field_errors }}<div class="form-grid"><label>First name{{ form.first_name }}{{ form.first_name.errors }}</label><label>Last name{{ form.last_name }}{{ form.last_name.errors }}</label></div><label>Username<input value="{{ user.username }}" disabled aria-describedby="username-help"><small id="username-help">Usernames cannot be changed here.</small></label><label>Email address{{ form.email }}{{ form.email.errors }}</label><button class="button button-full" type="submit">Save profile</button></form><p class="auth-switch"><a href="{% url 'profile' %}">← Back to profile</a></p></div></section>
+{% endblock %}
