@@ -44,11 +44,11 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
 
+    path('', include('accounts.urls')),
+
     path('', home, name='home'),
 
     path('shop/', include('products.urls')),
-
-    path('accounts/', include('accounts.urls')),
 
     path('products/', include('products.urls')),
 
