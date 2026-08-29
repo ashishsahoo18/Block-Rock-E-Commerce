@@ -6,12 +6,14 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordResetCompleteView, PasswordResetConfirmView, PasswordResetDoneView, PasswordResetView
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_POST
 
 from cart.models import Cart, Wishlist
 
-from .forms import ProfileForm, RegistrationForm
+from .forms import NewsletterSubscriptionForm, ProfileForm, RegistrationForm
+from .models import Subscriber
 
 
 def _safe_next_url(request):
@@ -58,6 +60,27 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
+    return redirect('home')
+
+
+@require_POST
+def subscribe_newsletter(request):
+    form = NewsletterSubscriptionForm(request.POST)
+    if form.is_valid():
+        email = form.cleaned_data['email']
+        subscriber, created = Subscriber.objects.get_or_create(email=email)
+        if created:
+            messages.success(request, "You're subscribed! Welcome to Block Rock.")
+        elif subscriber.is_active:
+            messages.info(request, "You're already subscribed to Block Rock.")
+        else:
+            subscriber.is_active = True
+            subscriber.subscribed_at = timezone.now()
+            subscriber.save(update_fields=['is_active', 'subscribed_at'])
+            messages.success(request, "You're subscribed! Welcome to Block Rock.")
+    else:
+        error = form.errors.get('email')
+        messages.error(request, error[0] if error else 'Please enter a valid email address.')
     return redirect('home')
 
 
