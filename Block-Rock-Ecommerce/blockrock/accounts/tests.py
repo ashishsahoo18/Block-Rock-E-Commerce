@@ -1,7 +1,10 @@
 from django.contrib.auth.models import User
+from django.contrib.messages import get_messages
 from django.core import mail
-from django.test import TestCase, override_settings
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+
+from .models import Subscriber
 
 
 class AuthenticationFlowTests(TestCase):
@@ -85,3 +88,109 @@ class AuthenticationFlowTests(TestCase):
         self.assertRedirects(response, reverse('password_reset_done'))
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('/reset/', mail.outbox[0].body)
+
+
+class NewsletterSubscriptionTests(TestCase):
+    def _message_texts(self, response):
+        return [str(message) for message in get_messages(response.wsgi_request)]
+
+    def test_valid_email_subscription(self):
+        response = self.client.post(reverse('newsletter_subscribe'), {'email': 'Fan@Example.com'})
+        self.assertRedirects(response, reverse('home'))
+
+        subscriber = Subscriber.objects.get(email='fan@example.com')
+        self.assertTrue(subscriber.is_active)
+        self.assertIsNotNone(subscriber.subscribed_at)
+        self.assertIn("You're subscribed! Welcome to Block Rock.", self._message_texts(response))
+
+    def test_duplicate_email_does_not_create_duplicate(self):
+        Subscriber.objects.create(email='fan@example.com')
+
+        response = self.client.post(reverse('newsletter_subscribe'), {'email': 'FAN@example.com'})
+
+        self.assertRedirects(response, reverse('home'))
+        self.assertEqual(Subscriber.objects.filter(email='fan@example.com').count(), 1)
+        self.assertIn("You're already subscribed to Block Rock.", self._message_texts(response))
+
+    def test_inactive_duplicate_reactivates_existing_subscriber(self):
+        subscriber = Subscriber.objects.create(email='fan@example.com', is_active=False)
+
+        response = self.client.post(reverse('newsletter_subscribe'), {'email': 'fan@example.com'})
+
+        subscriber.refresh_from_db()
+        self.assertRedirects(response, reverse('home'))
+        self.assertTrue(subscriber.is_active)
+        self.assertEqual(Subscriber.objects.count(), 1)
+        self.assertIn("You're subscribed! Welcome to Block Rock.", self._message_texts(response))
+
+    def test_invalid_email_is_rejected(self):
+        response = self.client.post(reverse('newsletter_subscribe'), {'email': 'not-an-email'})
+
+        self.assertRedirects(response, reverse('home'))
+        self.assertEqual(Subscriber.objects.count(), 0)
+        self.assertIn('Please enter a valid email address.', self._message_texts(response))
+
+    def test_empty_email_is_rejected(self):
+        response = self.client.post(reverse('newsletter_subscribe'), {'email': ''})
+
+        self.assertRedirects(response, reverse('home'))
+        self.assertEqual(Subscriber.objects.count(), 0)
+        self.assertIn('Please enter a valid email address.', self._message_texts(response))
+
+    def test_homepage_displays_active_subscriber_count(self):
+        Subscriber.objects.create(email='one@example.com')
+        Subscriber.objects.create(email='two@example.com')
+        Subscriber.objects.create(email='inactive@example.com', is_active=False)
+
+        response = self.client.get(reverse('home'))
+
+        self.assertContains(response, 'Join 2+ tech lovers staying updated.')
+        self.assertNotContains(response, 'Join 3+ tech lovers staying updated.')
+
+    def test_homepage_displays_zero_subscriber_message(self):
+        response = self.client.get(reverse('home'))
+
+        self.assertContains(response, 'Be the first to join the Block Rock community.')
+
+    def test_get_request_does_not_create_subscriber(self):
+        response = self.client.get(reverse('newsletter_subscribe'))
+
+        self.assertEqual(response.status_code, 405)
+        self.assertEqual(Subscriber.objects.count(), 0)
+
+    def test_csrf_protection_rejects_missing_token(self):
+        csrf_client = Client(enforce_csrf_checks=True)
+
+        response = csrf_client.post(reverse('newsletter_subscribe'), {'email': 'fan@example.com'})
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(Subscriber.objects.count(), 0)
+
+    def test_subscriber_admin_lists_searches_and_manages_status(self):
+        admin_user = User.objects.create_superuser(
+            username='admin',
+            email='admin@example.com',
+            password='SecurePass!2026',
+        )
+        subscriber = Subscriber.objects.create(email='fan@example.com')
+        self.client.force_login(admin_user)
+
+        changelist_url = reverse('admin:accounts_subscriber_changelist')
+        response = self.client.get(changelist_url, {'q': 'fan@example.com'})
+        self.assertContains(response, 'fan@example.com')
+
+        self.client.post(changelist_url, {
+            'action': 'mark_inactive',
+            '_selected_action': [str(subscriber.pk)],
+            'index': '0',
+        })
+        subscriber.refresh_from_db()
+        self.assertFalse(subscriber.is_active)
+
+        self.client.post(changelist_url, {
+            'action': 'mark_active',
+            '_selected_action': [str(subscriber.pk)],
+            'index': '0',
+        })
+        subscriber.refresh_from_db()
+        self.assertTrue(subscriber.is_active)
