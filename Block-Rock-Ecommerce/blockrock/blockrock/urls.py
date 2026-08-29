@@ -19,6 +19,7 @@ from django.urls import path, include
 from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts.models import Subscriber
 from products.models import Category, Product
 
 
@@ -32,11 +33,13 @@ def home(request):
         .select_related('category').first()
     )
     categories = Category.objects.filter(is_active=True)[:9]
+    active_subscriber_count = Subscriber.objects.filter(is_active=True).count()
 
     return render(request, 'home.html', {
         'featured_products': featured_products,
         'deal_product': deal_product,
         'categories': categories,
+        'active_subscriber_count': active_subscriber_count,
     })
 
 
