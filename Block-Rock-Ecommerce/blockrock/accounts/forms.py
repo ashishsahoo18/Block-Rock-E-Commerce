@@ -34,3 +34,12 @@ class ProfileForm(forms.ModelForm):
 class BlockRockPasswordChangeForm(PasswordChangeForm):
     """Named form keeps password fields and validator errors in Django's safe flow."""
 
+
+class NewsletterSubscriptionForm(forms.Form):
+    email = forms.EmailField(error_messages={
+        'invalid': 'Please enter a valid email address.',
+        'required': 'Please enter a valid email address.',
+    })
+
+    def clean_email(self):
+        return self.cleaned_data['email'].strip().lower()
