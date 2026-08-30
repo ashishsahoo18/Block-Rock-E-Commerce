@@ -1,6 +1,12 @@
+{% load static %}
 <header class="site-header">
   <div class="container nav-wrap">
-    <a class="brand" href="{% url 'home' %}" aria-label="Block Rock home"><span class="brand-mark">BR</span><span>BLOCK ROCK</span></a>
+    <a class="brand" href="{% url 'home' %}" aria-label="Block Rock home">
+      <picture>
+        <source media="(max-width: 520px)" srcset="{% static 'images/block-rock-logo-compact.png' %}">
+        <img class="brand-logo" src="{% static 'images/block-rock-logo.png' %}" alt="Block Rock">
+      </picture>
+    </a>
     <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>Menu</button>
     <nav class="primary-nav" data-primary-nav>
       <a class="active" href="{% url 'home' %}">Home</a>
