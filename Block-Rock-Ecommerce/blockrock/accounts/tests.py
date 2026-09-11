@@ -18,6 +18,16 @@ class AuthenticationFlowTests(TestCase):
             first_name='Ashish',
         )
 
+    def test_root_url_logged_out_redirects_to_login(self):
+        response = self.client.get('/')
+        self.assertRedirects(response, f"{reverse('login')}?next=/")
+
+    def test_root_url_logged_in_renders_homepage(self):
+        self.client.force_login(self.user)
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'home.html')
+
     def test_register_creates_hashed_user_and_redirects_to_login(self):
         response = self.client.post(reverse('register'), {
             'first_name': 'Ada', 'last_name': 'Lovelace', 'username': 'ada',
@@ -44,24 +54,52 @@ class AuthenticationFlowTests(TestCase):
         self.assertRedirects(response, reverse('cart_detail'))
         self.assertEqual(self.client.session.get('_auth_user_id'), str(self.user.pk))
 
+    def test_login_success_without_next_redirects_to_home(self):
+        response = self.client.post(reverse('login'), {
+            'identifier': self.user.email, 'password': self.password,
+        })
+        self.assertRedirects(response, reverse('home'))
+        self.assertEqual(self.client.session.get('_auth_user_id'), str(self.user.pk))
+
     def test_login_rejects_bad_credentials(self):
-        response = self.client.post(reverse('login'), {'identifier': self.user.username, 'password': 'not-it'})
+        response = self.client.post(reverse('login'), {'identifier': self.user.username, 'password': 'wrong-password'})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'not recognised')
+        self.assertContains(response, 'Invalid email or password.')
+
+    def test_login_rejects_unknown_email(self):
+        response = self.client.post(reverse('login'), {'identifier': 'unknown@example.com', 'password': self.password})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Invalid email or password.')
 
     def test_private_pages_redirect_to_login_with_next(self):
-        for name in ('account', 'profile', 'profile_edit', 'profile_password', 'cart_detail', 'wishlist_detail'):
-            response = self.client.get(reverse(name))
-            self.assertEqual(response.status_code, 302)
+        protected_urls = [
+            '/', '/shop/', '/cart/', '/wishlist/', '/checkout/', '/orders/', '/account/', '/profile/',
+        ]
+        for url in protected_urls:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302, f"URL {url} should be protected.")
             self.assertIn(reverse('login'), response['Location'])
             self.assertIn('next=', response['Location'])
 
-    def test_logout_requires_post_and_returns_home(self):
+    def test_protected_pages_accessible_when_logged_in(self):
+        self.client.force_login(self.user)
+        protected_urls = [
+            '/', '/shop/', '/cart/', '/wishlist/', '/orders/', '/account/', '/profile/',
+        ]
+        for url in protected_urls:
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200, f"URL {url} should be accessible when logged in.")
+
+    def test_logout_destroys_session_and_redirects_to_login(self):
         self.client.force_login(self.user)
         self.assertEqual(self.client.get(reverse('logout')).status_code, 405)
         response = self.client.post(reverse('logout'))
-        self.assertRedirects(response, reverse('home'))
+        self.assertRedirects(response, reverse('login'))
         self.assertNotIn('_auth_user_id', self.client.session)
+
+        # Confirm user cannot access protected page after logout
+        home_res = self.client.get('/')
+        self.assertRedirects(home_res, f"{reverse('login')}?next=/")
 
     def test_profile_edit_keeps_username_and_validates_unique_email(self):
         second_user = User.objects.create_user(username='second', email='second@example.com', password=self.password)
@@ -91,6 +129,10 @@ class AuthenticationFlowTests(TestCase):
 
 
 class NewsletterSubscriptionTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='sub_user', password='Password123!')
+        self.client.force_login(self.user)
+
     def _message_texts(self, response):
         return [str(message) for message in get_messages(response.wsgi_request)]
 
@@ -160,6 +202,7 @@ class NewsletterSubscriptionTests(TestCase):
 
     def test_csrf_protection_rejects_missing_token(self):
         csrf_client = Client(enforce_csrf_checks=True)
+        csrf_client.force_login(self.user)
 
         response = csrf_client.post(reverse('newsletter_subscribe'), {'email': 'fan@example.com'})
 
