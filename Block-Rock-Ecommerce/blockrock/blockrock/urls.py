@@ -19,10 +19,12 @@ from django.urls import path, include
 from django.shortcuts import render
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.decorators import login_required
 from accounts.models import Subscriber
 from products.models import Category, Product
 
 
+@login_required
 def home(request):
     featured_products = (
         Product.objects.filter(is_featured=True, is_active=True)
@@ -60,6 +62,8 @@ urlpatterns = [
     path('wishlist/', include('cart.wishlist_urls')),
 
     path('orders/', include('orders.urls')),
+
+    path('checkout/', include('orders.checkout_urls')),
 
 ]
 
