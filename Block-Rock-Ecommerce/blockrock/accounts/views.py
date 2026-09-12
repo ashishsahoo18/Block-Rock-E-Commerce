@@ -25,7 +25,7 @@ def _safe_next_url(request):
 
 def register(request):
     if request.user.is_authenticated:
-        return redirect('account')
+        return redirect('home')
     form = RegistrationForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         form.save()
@@ -36,7 +36,7 @@ def register(request):
 
 def login_user(request):
     if request.user.is_authenticated:
-        return redirect(_safe_next_url(request) or 'account')
+        return redirect(_safe_next_url(request) or 'home')
     next_url = _safe_next_url(request)
     if request.method == 'POST':
         identifier = request.POST.get('identifier', '').strip()
@@ -52,7 +52,7 @@ def login_user(request):
                 request.session.set_expiry(0)
             messages.success(request, f'Welcome back, {user.first_name or user.username}.')
             return redirect(next_url or 'home')
-        messages.error(request, 'Your username/email or password was not recognised.')
+        messages.error(request, 'Invalid email or password.')
     return render(request, 'accounts/login.html', {'next': next_url or ''})
 
 
@@ -60,9 +60,10 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.success(request, 'You have been logged out successfully.')
-    return redirect('home')
+    return redirect('login')
 
 
+@login_required
 @require_POST
 def subscribe_newsletter(request):
     form = NewsletterSubscriptionForm(request.POST)
@@ -87,6 +88,7 @@ def subscribe_newsletter(request):
 def _account_stats(user):
     cart_items = 0
     wishlist_items = 0
+    orders_count = 0
     try:
         cart_items = sum(item.quantity for item in Cart.objects.get(user=user).items.all())
     except Cart.DoesNotExist:
@@ -95,7 +97,12 @@ def _account_stats(user):
         wishlist_items = Wishlist.objects.get(user=user).items.count()
     except Wishlist.DoesNotExist:
         pass
-    return {'orders_count': 0, 'cart_items': cart_items, 'wishlist_items': wishlist_items}
+    try:
+        from orders.models import Order
+        orders_count = Order.objects.filter(user=user).count()
+    except Exception:
+        pass
+    return {'orders_count': orders_count, 'cart_items': cart_items, 'wishlist_items': wishlist_items}
 
 
 @login_required
