@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} | Block Rock{% endblock %}
+
+{% block content %}
+<section class="order-detail-page container">
+  <a class="back-link" href="{% url 'order_list' %}">&larr; Back to My Orders</a>
+
+  <div class="page-heading">
+    <div class="detail-header-flex">
+      <div>
+        <p class="eyebrow">ORDER DETAILS</p>
+        <h1>Order #{{ order.order_number }}</h1>
+        <p class="order-date">Placed on {{ order.created_at|date:"N j, Y, g:i a" }}</p>
+      </div>
+      <div>
+        <span class="status-badge status-{{ order.status|lower }}">{{ order.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="order-detail-grid">
+    <!-- Main Items List -->
+    <div class="order-detail-items profile-card">
+      <h2>Purchased Items ({{ order.item_count }})</h2>
+
+      <div class="order-items-table">
+        {% for item in order.items.all %}
+          <div class="order-item-row">
+            <div class="order-item-image">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}">
+              {% else %}
+                <span>✦</span>
+              {% endif %}
+            </div>
+            <div class="order-item-details">
+              <h3>
+                {% if item.product %}
+                  <a href="{% url 'product_detail' item.product.slug %}">{{ item.product_name }}</a>
+                {% else %}
+                  {{ item.product_name }}
+                {% endif %}
+              </h3>
+              <p class="unit-price">Price snapshot: ₹{{ item.price }}</p>
+            </div>
+            <div class="order-item-qty">
+              <span>Qty: <strong>{{ item.quantity }}</strong></span>
+            </div>
+            <div class="order-item-total">
+              <strong>₹{{ item.line_total }}</strong>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sidebar: Shipping & Financial Summary -->
+    <aside class="order-detail-sidebar profile-card">
+      <h2>Shipping & Delivery</h2>
+      <div class="address-box">
+        <strong>{{ order.shipping_name }}</strong>
+        <p>{{ order.address_line1 }}</p>
+        {% if order.address_line2 %}<p>{{ order.address_line2 }}</p>{% endif %}
+        <p>{{ order.city }}, {{ order.state }} - {{ order.postal_code }}</p>
+        <p>{{ order.country }}</p>
+        <p class="contact-line">📞 {{ order.phone }}</p>
+        <p class="contact-line">✉️ {{ order.email }}</p>
+      </div>
+
+      <hr class="divider">
+
+      <h2>Payment Breakdown</h2>
+      <div class="summary-line">
+        <span>Payment Method</span>
+        <strong>{{ order.payment_method }}</strong>
+      </div>
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <strong>₹{{ order.subtotal }}</strong>
+      </div>
+      <div class="summary-line">
+        <span>Shipping Fee</span>
+        {% if order.shipping_fee == 0 %}
+          <strong class="shipping-free">FREE</strong>
+        {% else %}
+          <strong>₹{{ order.shipping_fee }}</strong>
+        {% endif %}
+      </div>
+      <div class="summary-total">
+        <span>Grand Total</span>
+        <strong>₹{{ order.total }}</strong>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
