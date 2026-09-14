@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout | Block Rock{% endblock %}
+
+{% block content %}
+<section class="checkout-page container">
+  <div class="page-heading">
+    <p class="eyebrow">FINAL STEP</p>
+    <h1>Checkout</h1>
+    <p>Review your selection and enter your shipping details.</p>
+  </div>
+
+  <form method="post" action="{% url 'place_order' %}" class="checkout-layout">
+    {% csrf_token %}
+
+    <!-- LEFT COLUMN: Shipping & Customer Information -->
+    <div class="checkout-main profile-card">
+      <h2>Shipping & Customer Details</h2>
+      <p class="empty-copy">Please provide accurate delivery information for your order.</p>
+
+      {% if form.non_field_errors %}
+        <div class="message error">
+          {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="account-form">
+        <div class="form-grid">
+          <div>
+            <label for="{{ form.shipping_name.id_for_label }}">{{ form.shipping_name.label }}</label>
+            {{ form.shipping_name }}
+            {{ form.shipping_name.errors }}
+          </div>
+          <div>
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+            {{ form.phone }}
+            {{ form.phone.errors }}
+          </div>
+          <div>
+            <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+            {{ form.country }}
+            {{ form.country.errors }}
+          </div>
+        </div>
+
+        <div>
+          <label for="{{ form.address_line1.id_for_label }}">{{ form.address_line1.label }}</label>
+          {{ form.address_line1 }}
+          {{ form.address_line1.errors }}
+        </div>
+
+        <div>
+          <label for="{{ form.address_line2.id_for_label }}">{{ form.address_line2.label }}</label>
+          {{ form.address_line2 }}
+          {{ form.address_line2.errors }}
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+            {{ form.city }}
+            {{ form.city.errors }}
+          </div>
+          <div>
+            <label for="{{ form.state.id_for_label }}">{{ form.state.label }}</label>
+            {{ form.state }}
+            {{ form.state.errors }}
+          </div>
+        </div>
+
+        <div>
+          <label for="{{ form.postal_code.id_for_label }}">{{ form.postal_code.label }}</label>
+          {{ form.postal_code }}
+          {{ form.postal_code.errors }}
+        </div>
+
+        <div class="payment-method-section">
+          <h3>Payment Method</h3>
+          <div class="payment-options">
+            <label class="payment-option active">
+              <input type="radio" name="payment_method" value="Cash on Delivery" checked>
+              <div class="payment-option-content">
+                <strong>💵 Cash on Delivery</strong>
+                <small>Pay with cash or card upon delivery to your doorstep.</small>
+              </div>
+            </label>
+            <label class="payment-option disabled">
+              <input type="radio" name="payment_method_disabled" disabled>
+              <div class="payment-option-content">
+                <strong>💳 Online Payment <span class="badge-coming-soon">Coming Soon</span></strong>
+                <small>Credit/Debit Cards, UPI & Netbanking integration coming soon.</small>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Order Summary & Review -->
+    <aside class="checkout-sidebar cart-summary">
+      <p class="eyebrow">ORDER SUMMARY</p>
+
+      <div class="checkout-items-list">
+        {% for item in items %}
+          <div class="checkout-item-row">
+            <div class="checkout-item-thumb">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+              {% else %}
+                <span>✦</span>
+              {% endif %}
+            </div>
+            <div class="checkout-item-info">
+              <strong>{{ item.product.name }}</strong>
+              <small>Qty: {{ item.quantity }} × ₹{{ item.product.current_price }}</small>
+            </div>
+            <div class="checkout-item-total">
+              <strong>₹{{ item.subtotal }}</strong>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <strong>₹{{ subtotal }}</strong>
+      </div>
+
+      <div class="summary-line">
+        <span>Shipping Fee</span>
+        {% if shipping_fee == 0 %}
+          <strong class="shipping-free">FREE</strong>
+        {% else %}
+          <strong>₹{{ shipping_fee }}</strong>
+        {% endif %}
+      </div>
+
+      {% if subtotal < free_shipping_threshold %}
+        <p class="shipping-hint">💡 Add ₹{{ free_shipping_threshold|add:"-subtotal" }} more to get FREE Shipping!</p>
+      {% else %}
+        <p class="shipping-hint success">✨ You qualify for FREE Shipping!</p>
+      {% endif %}
+
+      <div class="summary-total">
+        <span>Grand Total</span>
+        <strong>₹{{ total }}</strong>
+      </div>
+
+      <button type="submit" class="button button-full">Place Order Now &rarr;</button>
+
+      <a class="continue-link" href="{% url 'cart_detail' %}">&larr; Return to Cart</a>
+    </aside>
+  </form>
+</section>
+{% endblock %}
