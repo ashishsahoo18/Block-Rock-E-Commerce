@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed | Block Rock{% endblock %}
+
+{% block content %}
+<section class="confirmation-page container">
+  <div class="confirmation-banner profile-card">
+    <div class="confirmation-icon">✓</div>
+    <p class="eyebrow">ORDER CONFIRMED</p>
+    <h1>Order Placed Successfully!</h1>
+    <p>Thank you for shopping with Block Rock. Your order has been placed and is being prepared.</p>
+
+    <div class="order-quick-meta">
+      <div>
+        <span>Order Number</span>
+        <strong>{{ order.order_number }}</strong>
+      </div>
+      <div>
+        <span>Order Date</span>
+        <strong>{{ order.created_at|date:"N j, Y, g:i a" }}</strong>
+      </div>
+      <div>
+        <span>Payment Method</span>
+        <strong>{{ order.payment_method }}</strong>
+      </div>
+      <div>
+        <span>Status</span>
+        <span class="status-badge status-{{ order.status|lower }}">{{ order.status }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirmation-grid">
+    <!-- Items Purchased -->
+    <div class="confirmation-items profile-card">
+      <h2>Items Purchased</h2>
+      <div class="order-items-table">
+        {% for item in order.items.all %}
+          <div class="order-item-row">
+            <div class="order-item-image">
+              {% if item.product and item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product_name }}">
+              {% else %}
+                <span>✦</span>
+              {% endif %}
+            </div>
+            <div class="order-item-details">
+              <h3>
+                {% if item.product %}
+                  <a href="{% url 'product_detail' item.product.slug %}">{{ item.product_name }}</a>
+                {% else %}
+                  {{ item.product_name }}
+                {% endif %}
+              </h3>
+              <p>₹{{ item.price }} × {{ item.quantity }}</p>
+            </div>
+            <div class="order-item-total">
+              <strong>₹{{ item.line_total }}</strong>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Shipping & Financial Summary -->
+    <aside class="confirmation-summary profile-card">
+      <h2>Delivery Address</h2>
+      <div class="address-box">
+        <strong>{{ order.shipping_name }}</strong>
+        <p>{{ order.address_line1 }}</p>
+        {% if order.address_line2 %}<p>{{ order.address_line2 }}</p>{% endif %}
+        <p>{{ order.city }}, {{ order.state }} - {{ order.postal_code }}</p>
+        <p>{{ order.country }}</p>
+        <p class="contact-line">📞 {{ order.phone }} | ✉️ {{ order.email }}</p>
+      </div>
+
+      <hr class="divider">
+
+      <h2>Payment Breakdown</h2>
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <strong>₹{{ order.subtotal }}</strong>
+      </div>
+      <div class="summary-line">
+        <span>Shipping Fee</span>
+        {% if order.shipping_fee == 0 %}
+          <strong class="shipping-free">FREE</strong>
+        {% else %}
+          <strong>₹{{ order.shipping_fee }}</strong>
+        {% endif %}
+      </div>
+      <div class="summary-total">
+        <span>Grand Total</span>
+        <strong>₹{{ order.total }}</strong>
+      </div>
+
+      <div class="confirmation-actions">
+        <a class="button button-full" href="{% url 'order_list' %}">View My Orders</a>
+        <a class="button button-ghost button-full" href="{% url 'products' %}">Continue Shopping</a>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}
