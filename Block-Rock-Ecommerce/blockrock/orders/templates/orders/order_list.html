@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders | Block Rock{% endblock %}
+
+{% block content %}
+<section class="orders-page container">
+  <div class="page-heading">
+    <p class="eyebrow">ORDER HISTORY</p>
+    <h1>My Orders</h1>
+    <p>View and track all your previous purchases with Block Rock.</p>
+  </div>
+
+  {% if orders %}
+    <div class="orders-list">
+      {% for order in orders %}
+        <article class="order-card profile-card">
+          <div class="order-card-header">
+            <div>
+              <p class="eyebrow">ORDER #{{ order.order_number }}</p>
+              <small class="order-date">Placed on {{ order.created_at|date:"N j, Y, g:i a" }}</small>
+            </div>
+            <span class="status-badge status-{{ order.status|lower }}">{{ order.status }}</span>
+          </div>
+
+          <div class="order-card-body">
+            <div class="order-card-info">
+              <div>
+                <span>Items Count</span>
+                <strong>{{ order.item_count }} item{% if order.item_count != 1 %}s{% endif %}</strong>
+              </div>
+              <div>
+                <span>Payment Method</span>
+                <strong>{{ order.payment_method }}</strong>
+              </div>
+              <div>
+                <span>Total Amount</span>
+                <strong class="order-total-price">₹{{ order.total }}</strong>
+              </div>
+            </div>
+
+            <div class="order-card-preview">
+              {% for item in order.items.all|slice:":3" %}
+                <span class="item-chip">{{ item.quantity }}× {{ item.product_name }}</span>
+              {% endfor %}
+              {% if order.items.all.count > 3 %}
+                <span class="item-chip-more">+{{ order.items.all.count|add:"-3" }} more</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="order-card-footer">
+            <a class="button button-small" href="{% url 'order_detail' order.order_number %}">View Details &rarr;</a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-products empty-orders">
+      <span>📦</span>
+      <h2>No orders yet</h2>
+      <p>You have not placed any orders yet. Explore our latest devices and upgrade your setup.</p>
+      <a class="button" href="{% url 'products' %}">Start Shopping</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
