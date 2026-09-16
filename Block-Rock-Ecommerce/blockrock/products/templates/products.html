@@ -1,10 +1,229 @@
 {% extends 'base.html' %}
-{% block title %}Shop | Block Rock{% endblock %}
+{% block title %}Shop Marketplace | Block Rock{% endblock %}
 {% block content %}
-<section class="shop-page container">
-  <div class="shop-heading"><p class="eyebrow">THE COLLECTION</p><h1>Find your next<br><em>favorite device.</em></h1><p>Explore selected technology from trusted names and fresh new makers.</p></div>
-  <form class="shop-filters" method="get"><label><span>Search</span><input type="search" name="search" value="{{ query }}" placeholder="Product or brand"></label><label><span>Category</span><select name="category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></label><label><span>Sort by</span><select name="sort"><option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest</option><option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option><option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option><option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rated</option></select></label><button class="button" type="submit">Apply filters</button></form>
-  <div class="shop-results"><p>{{ products|length }} product{{ products|length|pluralize }} found{% if selected_category %} in this category{% endif %}.</p><a href="{% url 'products' %}">Clear filters</a></div>
-  {% if products %}<div class="product-grid shop-product-grid">{% for product in products %}{% include 'includes/product_card.html' %}{% endfor %}</div>{% else %}<div class="empty-products"><span>✦</span><h3>{% if selected_category %}No products found in this category.{% else %}No products available yet.{% endif %}</h3><p>Try another search or adjust your filters.</p><a class="button" href="{% url 'products' %}">Browse all products</a></div>{% endif %}
-</section>
+<div class="marketplace-wrapper container">
+  <!-- Marketplace Top Header -->
+  <header class="marketplace-header">
+    <div class="header-titles">
+      <span class="eyebrow">BLOCK ROCK CATALOGUE &bull; 50 PRODUCTS</span>
+      <h1>Tech Marketplace</h1>
+      <p>Explore high-performance laptops, smartphones, audio, accessories, and gaming gear.</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="marketplace-search-box">
+      <form action="{% url 'products' %}" method="get" class="search-form">
+        <!-- Preserve existing filters when searching -->
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+        {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+        {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+        {% if in_stock %}<input type="hidden" name="in_stock" value="1">{% endif %}
+        {% if deal %}<input type="hidden" name="deal" value="1">{% endif %}
+        {% if featured %}<input type="hidden" name="featured" value="1">{% endif %}
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+        
+        <div class="input-with-icon">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="search" name="search" value="{{ query }}" placeholder="Search 50 products by name, brand, or specs...">
+          {% if query %}
+            <a href="{% url 'products' %}?{% if filter_querystring %}{{ filter_querystring }}{% endif %}" class="clear-search" title="Clear search">&times;</a>
+          {% endif %}
+        </div>
+        <button type="submit" class="button">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <!-- Control Toolbar -->
+  <div class="marketplace-toolbar">
+    <button type="button" class="filter-toggle-btn" id="filter-toggle-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+      <span>Filter Catalogue</span>
+    </button>
+
+    <div class="results-count">
+      <strong>{{ total_results }}</strong> product{{ total_results|pluralize }} found
+      {% if page_obj.paginator.num_pages > 1 %}
+        <span class="page-indicator">(Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }})</span>
+      {% endif %}
+    </div>
+
+    <!-- Sorting Control -->
+    <form method="get" class="sort-form" id="sort-form">
+      {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
+      {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+      {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+      {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+      {% if in_stock %}<input type="hidden" name="in_stock" value="1">{% endif %}
+      {% if deal %}<input type="hidden" name="deal" value="1">{% endif %}
+      {% if featured %}<input type="hidden" name="featured" value="1">{% endif %}
+
+      <label for="sort-select">Sort by:</label>
+      <select name="sort" id="sort-select" onchange="this.form.submit()">
+        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+        <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+        <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+        <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Customer Rating</option>
+        <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+      </select>
+    </form>
+  </div>
+
+  <!-- Active Filter Chips -->
+  {% if selected_category or min_price or max_price or in_stock or deal or featured or query %}
+    <div class="active-filters-bar">
+      <span class="active-label">Active Filters:</span>
+      {% if query %}<span class="filter-chip">Query: "{{ query }}"</span>{% endif %}
+      {% if selected_category %}<span class="filter-chip">Category: {{ selected_category|title }}</span>{% endif %}
+      {% if min_price %}<span class="filter-chip">Min: ₹{{ min_price }}</span>{% endif %}
+      {% if max_price %}<span class="filter-chip">Max: ₹{{ max_price }}</span>{% endif %}
+      {% if in_stock %}<span class="filter-chip">In Stock Only</span>{% endif %}
+      {% if deal %}<span class="filter-chip">Deals Only</span>{% endif %}
+      {% if featured %}<span class="filter-chip">Featured Only</span>{% endif %}
+      <a href="{% url 'products' %}" class="clear-all-link">Reset all filters</a>
+    </div>
+  {% endif %}
+
+  <!-- Main Marketplace Layout Grid -->
+  <div class="marketplace-body">
+    <!-- Left Sidebar / Drawer -->
+    <aside class="marketplace-sidebar" id="marketplace-sidebar">
+      <div class="sidebar-header">
+        <h3>Filter Catalogue</h3>
+        <button type="button" class="close-sidebar-btn" id="close-sidebar-btn">&times;</button>
+      </div>
+
+      <form action="{% url 'products' %}" method="get" class="filter-form">
+        {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+
+        <!-- Categories -->
+        <div class="filter-group">
+          <h4>Categories</h4>
+          <ul class="category-filter-list">
+            <li>
+              <label class="category-radio">
+                <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %} onchange="this.form.submit()">
+                <span>All Categories</span>
+              </label>
+            </li>
+            {% for cat in categories %}
+              <li>
+                <label class="category-radio">
+                  <input type="radio" name="category" value="{{ cat.slug }}" {% if selected_category == cat.slug %}checked{% endif %} onchange="this.form.submit()">
+                  <span>{{ cat.name }}</span>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="filter-group">
+          <h4>Price Range (₹)</h4>
+          <div class="price-inputs-row">
+            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min ₹" min="0" step="100">
+            <span>to</span>
+            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max ₹" min="0" step="100">
+          </div>
+        </div>
+
+        <!-- Special Filters -->
+        <div class="filter-group">
+          <h4>Availability & Offers</h4>
+          <label class="checkbox-filter">
+            <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %}>
+            <span>In Stock Only</span>
+          </label>
+          <label class="checkbox-filter">
+            <input type="checkbox" name="deal" value="1" {% if deal %}checked{% endif %}>
+            <span>Deals & Discounted</span>
+          </label>
+          <label class="checkbox-filter">
+            <input type="checkbox" name="featured" value="1" {% if featured %}checked{% endif %}>
+            <span>Featured Selection</span>
+          </label>
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit" class="button button-full">Apply Filters</button>
+          <a href="{% url 'products' %}" class="button button-ghost button-full">Reset</a>
+        </div>
+      </form>
+    </aside>
+
+    <!-- Right Side Product Listing -->
+    <main class="marketplace-main">
+      {% if products %}
+        <div class="product-grid shop-product-grid">
+          {% for product in products %}
+            {% include 'includes/product_card.html' %}
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+          <nav class="pagination-nav" aria-label="Product Page Navigation">
+            <ul class="pagination-list">
+              {% if page_obj.has_previous %}
+                <li>
+                  <a href="?page={{ page_obj.previous_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link prev-link">&laquo; Prev</a>
+                </li>
+              {% else %}
+                <li><span class="page-link prev-link disabled">&laquo; Prev</span></li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <li><span class="page-link active">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li>
+                    <a href="?page={{ num }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li>
+                  <a href="?page={{ page_obj.next_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link next-link">Next &raquo;</a>
+                </li>
+              {% else %}
+                <li><span class="page-link next-link disabled">Next &raquo;</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <div class="empty-products marketplace-empty">
+          <div class="empty-icon">⌕</div>
+          <h3>No products match your criteria</h3>
+          <p>Try adjusting your search terms, price range, or category selection.</p>
+          <a href="{% url 'products' %}" class="button">Reset All Filters</a>
+        </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+<script>
+  // Mobile filter drawer toggle
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('filter-toggle-btn');
+    const closeBtn = document.getElementById('close-sidebar-btn');
+    const sidebar = document.getElementById('marketplace-sidebar');
+
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+      });
+    }
+
+    if (closeBtn && sidebar) {
+      closeBtn.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+      });
+    }
+  });
+</script>
 {% endblock %}
