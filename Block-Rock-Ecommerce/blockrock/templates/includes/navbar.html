@@ -21,7 +21,7 @@
       {% if user.is_authenticated %}
         <a class="desktop-link" href="{% url 'account' %}">Hi, {{ user.first_name|default:user.username }}</a>
         <a class="desktop-link" href="{% url 'profile' %}">Profile</a>
-        <a class="desktop-link" href="{% url 'account' %}#orders">Orders</a>
+        <a class="desktop-link" href="{% url 'order_list' %}">Orders</a>
         <a href="{% url 'wishlist_detail' %}" aria-label="Wishlist">Wishlist</a>
         <a href="{% url 'cart_detail' %}" class="nav-cart" aria-label="Cart">Cart{% if cart_count %}<b>{{ cart_count }}</b>{% endif %}</a>
         <form class="logout-form" action="{% url 'logout' %}" method="post">

@@ -1,4 +1,98 @@
-<article class="product-card">
-  <a class="product-image" href="{% url 'product_detail' product.slug %}">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span class="product-placeholder">✦</span>{% endif %}{% if product.discount_percentage %}<span class="discount-badge">-{{ product.discount_percentage }}%</span>{% endif %}</a>
-  <div class="product-info"><p class="product-brand">{{ product.brand|default:'BLOCK ROCK SELECT' }}</p><h3><a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a></h3><p class="product-description">{{ product.short_description|default:product.description|truncatechars:56 }}</p><div class="rating"><span>★</span> {{ product.rating|floatformat:1 }} <small>({{ product.review_count }} reviews)</small></div><div class="product-bottom"><div><strong>₹{{ product.current_price }}</strong>{% if product.discount_price %}<del>₹{{ product.price }}</del>{% endif %}</div><div class="card-actions">{% if user.is_authenticated %}<form method="post" action="{% url 'add_to_wishlist' product.slug %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="card-heart {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit" aria-label="Add {{ product.name }} to wishlist">{% if product.id in wishlist_product_ids %}♥{% else %}♡{% endif %}</button></form><form method="post" action="{% url 'add_to_cart' product.slug %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="cart-icon" {% if not product.in_stock %}disabled{% endif %} type="submit" aria-label="Add {{ product.name }} to cart">+</button></form>{% else %}<a class="card-heart" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="Sign in to save {{ product.name }}">♡</a><a class="cart-icon" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="Sign in to add {{ product.name }} to cart">+</a>{% endif %}</div></div><p class="stock-status {% if product.in_stock %}in-stock{% else %}out-stock{% endif %}">{% if product.in_stock %}In stock{% else %}Out of stock{% endif %}</p></div>
+{% load currency_filters %}
+<article class="product-card marketplace-card">
+  <div class="card-image-wrap">
+    <a class="product-image" href="{% url 'product_detail' product.slug %}">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+      {% else %}
+        <div class="product-placeholder category-placeholder category-{{ product.category.slug }}">
+          {% if product.category.name == 'Laptops' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+          {% elif product.category.name == 'Smartphones' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg>
+          {% elif product.category.name == 'Audio' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+          {% elif product.category.name == 'Wearables' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="6"/><path d="M12 2v4M12 18v4"/></svg>
+          {% elif product.category.name == 'Cameras' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+          {% elif product.category.name == 'Gaming' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4"/><circle cx="17" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/></svg>
+          {% elif product.category.name == 'Computer Accessories' %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+          {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          {% endif %}
+          <span class="placeholder-tag">{{ product.category.name }}</span>
+        </div>
+      {% endif %}
+    </a>
+
+    <div class="card-badges">
+      {% if product.is_deal %}
+        <span class="badge deal-badge">DEAL</span>
+      {% endif %}
+      {% if product.is_featured %}
+        <span class="badge featured-badge">FEATURED</span>
+      {% endif %}
+      {% if product.discount_percentage %}
+        <span class="badge discount-badge">-{{ product.discount_percentage }}%</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="product-info">
+    <div class="card-meta">
+      <span class="product-brand">{{ product.brand|default:'BLOCK ROCK' }}</span>
+      <span class="meta-sep">&bull;</span>
+      <span class="product-category-name">{{ product.category.name }}</span>
+    </div>
+
+    <h3 class="product-title">
+      <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+    </h3>
+
+    {% if product.rating %}
+      <div class="product-rating">
+        <span class="rating-pill">
+          <span>★</span> {{ product.rating|floatformat:1 }}
+        </span>
+        <span class="review-count">({{ product.review_count }})</span>
+      </div>
+    {% endif %}
+
+    <div class="product-price-row">
+      <div class="price-box">
+        <span class="current-price">{{ product.current_price|rupee }}</span>
+        {% if product.discount_price %}
+          <del class="mrp-price">{{ product.price|rupee }}</del>
+        {% endif %}
+      </div>
+      <span class="stock-status {% if product.in_stock %}in-stock{% else %}out-stock{% endif %}">
+        {% if product.in_stock %}In Stock{% else %}Out of stock{% endif %}
+      </span>
+    </div>
+
+    <div class="card-actions">
+      {% if user.is_authenticated %}
+        <form method="post" action="{% url 'add_to_wishlist' product.slug %}" class="wishlist-form">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="card-heart {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit" aria-label="Add {{ product.name }} to wishlist" title="Save to Wishlist">
+            {% if product.id in wishlist_product_ids %}♥{% else %}♡{% endif %}
+          </button>
+        </form>
+        <form method="post" action="{% url 'add_to_cart' product.slug %}" class="cart-form">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <button class="button button-cart" {% if not product.in_stock %}disabled{% endif %} type="submit">
+            {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+          </button>
+        </form>
+      {% else %}
+        <a class="card-heart" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="Sign in to save {{ product.name }}">♡</a>
+        <a class="button button-cart" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Add to Cart</a>
+      {% endif %}
+    </div>
+  </div>
 </article>
