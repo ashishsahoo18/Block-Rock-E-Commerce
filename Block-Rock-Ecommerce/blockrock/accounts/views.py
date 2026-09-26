@@ -71,14 +71,14 @@ def subscribe_newsletter(request):
         email = form.cleaned_data['email']
         subscriber, created = Subscriber.objects.get_or_create(email=email)
         if created:
-            messages.success(request, "You're subscribed! Welcome to Block Rock.")
+            messages.success(request, "You're subscribed! Welcome to INGOT.")
         elif subscriber.is_active:
-            messages.info(request, "You're already subscribed to Block Rock.")
+            messages.info(request, "You're already subscribed to INGOT.")
         else:
             subscriber.is_active = True
             subscriber.subscribed_at = timezone.now()
             subscriber.save(update_fields=['is_active', 'subscribed_at'])
-            messages.success(request, "You're subscribed! Welcome to Block Rock.")
+            messages.success(request, "You're subscribed! Welcome to INGOT.")
     else:
         error = form.errors.get('email')
         messages.error(request, error[0] if error else 'Please enter a valid email address.')
