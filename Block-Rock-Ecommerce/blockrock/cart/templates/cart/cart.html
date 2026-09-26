@@ -1,5 +1,98 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
 {% block title %}INGOT | Cart{% endblock %}
+
 {% block content %}
-<section class="cart-page container"><div class="page-heading"><p class="eyebrow">YOUR SELECTION</p><h1>Your cart</h1><p>Everything you picked, ready when you are.</p></div>{% if items %}<div class="cart-layout"><div class="cart-items">{% for item in items %}<article class="cart-item"><a class="cart-item-image" href="{% url 'product_detail' item.product.slug %}">{% if item.product.image %}<img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">{% else %}<span>✦</span>{% endif %}</a><div class="cart-item-main"><p class="product-brand">{{ item.product.brand }}</p><h2><a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a></h2><p class="stock-status in-stock">{{ item.product.stock }} available</p></div><div class="cart-item-price"><strong>₹{{ item.product.current_price }}</strong>{% if item.product.discount_price %}<del>₹{{ item.product.price }}</del>{% endif %}</div><div class="cart-item-actions"><form method="post" action="{% url 'update_cart_item' item.id %}" class="quantity-picker">{% csrf_token %}<button name="action" value="decrease" type="submit" aria-label="Decrease {{ item.product.name }} quantity">−</button><span>{{ item.quantity }}</span><button name="action" value="increase" type="submit" aria-label="Increase {{ item.product.name }} quantity">+</button></form><strong class="cart-subtotal">₹{{ item.subtotal }}</strong><form method="post" action="{% url 'remove_from_cart' item.id %}">{% csrf_token %}<button class="text-button danger" type="submit">Remove</button></form></div></article>{% endfor %}</div><aside class="cart-summary"><p class="eyebrow">ORDER SUMMARY</p><div><span>Items ({{ cart.item_count }})</span><strong>₹{{ total }}</strong></div><div class="summary-total"><span>Total</span><strong>₹{{ total }}</strong></div><a class="button button-full" href="{% url 'checkout' %}">Proceed to Checkout</a><a class="continue-link" href="{% url 'products' %}">&larr; Continue shopping</a></aside></div>{% else %}<div class="empty-products empty-cart"><span>🛒</span><h2>Your cart is empty</h2><p>Looks like you have not added anything yet. Your next favorite device is waiting.</p><a class="button" href="{% url 'products' %}">Continue shopping</a></div>{% endif %}</section>
+<section class="cart-page container">
+  <div class="page-heading">
+    <p class="eyebrow">YOUR SELECTION</p>
+    <h1>Shopping Cart</h1>
+    <p>Review items in your cart and proceed to secure checkout.</p>
+  </div>
+
+  {% if items %}
+    <div class="cart-layout">
+      <!-- Left: Cart Items List -->
+      <div class="cart-items">
+        {% for item in items %}
+          <article class="cart-item profile-card">
+            <a class="cart-item-image" href="{% url 'product_detail' item.product.slug %}">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+              {% else %}
+                <span class="cart-item-placeholder">✦</span>
+              {% endif %}
+            </a>
+
+            <div class="cart-item-main">
+              <span class="product-brand">{{ item.product.brand|default:'INGOT' }}</span>
+              <h2><a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a></h2>
+              <p class="stock-status in-stock">✓ {{ item.product.stock }} available in stock</p>
+            </div>
+
+            <div class="cart-item-price">
+              <strong>{{ item.product.current_price|rupee }}</strong>
+              {% if item.product.discount_price %}
+                <del>{{ item.product.price|rupee }}</del>
+              {% endif %}
+            </div>
+
+            <div class="cart-item-actions">
+              <form method="post" action="{% url 'update_cart_item' item.id %}" class="quantity-picker-ui">
+                {% csrf_token %}
+                <button name="action" value="decrease" type="submit" class="qty-btn" aria-label="Decrease {{ item.product.name }} quantity">−</button>
+                <span class="qty-number">{{ item.quantity }}</span>
+                <button name="action" value="increase" type="submit" class="qty-btn" aria-label="Increase {{ item.product.name }} quantity">+</button>
+              </form>
+
+              <strong class="cart-subtotal">{{ item.subtotal|rupee }}</strong>
+
+              <form method="post" action="{% url 'remove_from_cart' item.id %}" class="remove-cart-form">
+                {% csrf_token %}
+                <button class="text-button danger" type="submit" title="Remove item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  <span>Remove</span>
+                </button>
+              </form>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+
+      <!-- Right: Order Summary Sidebar -->
+      <aside class="cart-summary">
+        <p class="eyebrow">ORDER SUMMARY</p>
+        <div class="summary-line">
+          <span>Items ({{ cart.item_count }})</span>
+          <strong>{{ total|rupee }}</strong>
+        </div>
+        <div class="summary-line">
+          <span>Estimated Delivery</span>
+          <strong class="shipping-free">Fast Dispatch</strong>
+        </div>
+        <div class="summary-total">
+          <span>Estimated Total</span>
+          <strong>{{ total|rupee }}</strong>
+        </div>
+
+        <a class="button button-full button-checkout-primary" href="{% url 'checkout' %}">
+          <span>Proceed to Checkout</span> &rarr;
+        </a>
+        <a class="continue-link" href="{% url 'products' %}">&larr; Continue shopping</a>
+      </aside>
+    </div>
+  {% else %}
+    <div class="empty-products empty-cart">
+      <div class="empty-cart-icon">🛒</div>
+      <h2>Your cart is empty</h2>
+      <p>Looks like you haven't added anything yet. Discover our latest electronics and INGOT Originals.</p>
+      <div class="empty-cart-actions">
+        <a class="button" href="{% url 'products' %}">Browse All Products</a>
+        <a class="button button-ghost" href="{% url 'ingot_originals' %}">Explore Originals</a>
+      </div>
+    </div>
+  {% endif %}
+</section>
 {% endblock %}
