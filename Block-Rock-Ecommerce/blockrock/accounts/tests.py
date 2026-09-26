@@ -143,7 +143,7 @@ class NewsletterSubscriptionTests(TestCase):
         subscriber = Subscriber.objects.get(email='fan@example.com')
         self.assertTrue(subscriber.is_active)
         self.assertIsNotNone(subscriber.subscribed_at)
-        self.assertIn("You're subscribed! Welcome to Block Rock.", self._message_texts(response))
+        self.assertIn("You're subscribed! Welcome to INGOT.", self._message_texts(response))
 
     def test_duplicate_email_does_not_create_duplicate(self):
         Subscriber.objects.create(email='fan@example.com')
@@ -152,7 +152,7 @@ class NewsletterSubscriptionTests(TestCase):
 
         self.assertRedirects(response, reverse('home'))
         self.assertEqual(Subscriber.objects.filter(email='fan@example.com').count(), 1)
-        self.assertIn("You're already subscribed to Block Rock.", self._message_texts(response))
+        self.assertIn("You're already subscribed to INGOT.", self._message_texts(response))
 
     def test_inactive_duplicate_reactivates_existing_subscriber(self):
         subscriber = Subscriber.objects.create(email='fan@example.com', is_active=False)
@@ -163,7 +163,7 @@ class NewsletterSubscriptionTests(TestCase):
         self.assertRedirects(response, reverse('home'))
         self.assertTrue(subscriber.is_active)
         self.assertEqual(Subscriber.objects.count(), 1)
-        self.assertIn("You're subscribed! Welcome to Block Rock.", self._message_texts(response))
+        self.assertIn("You're subscribed! Welcome to INGOT.", self._message_texts(response))
 
     def test_invalid_email_is_rejected(self):
         response = self.client.post(reverse('newsletter_subscribe'), {'email': 'not-an-email'})
@@ -192,7 +192,7 @@ class NewsletterSubscriptionTests(TestCase):
     def test_homepage_displays_zero_subscriber_message(self):
         response = self.client.get(reverse('home'))
 
-        self.assertContains(response, 'Be the first to join the Block Rock community.')
+        self.assertContains(response, 'Be the first to join the INGOT community.')
 
     def test_get_request_does_not_create_subscriber(self):
         response = self.client.get(reverse('newsletter_subscribe'))
