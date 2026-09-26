@@ -1,5 +1,58 @@
 {% extends "base.html" %}
-{% block title %}INGOT | Login{% endblock %}
+{% load static %}
+
+{% block title %}INGOT | Sign In{% endblock %}
+
 {% block content %}
-<section class="auth-page"><div class="auth-card"><p class="eyebrow">WELCOME BACK</p><h1>Welcome to <em>INGOT</em>.</h1><p class="auth-intro">Shop smart. Discover more.</p><form method="post" class="account-form">{% csrf_token %}<input type="hidden" name="next" value="{{ next }}"><label for="id_identifier">Email or username<input id="id_identifier" type="text" name="identifier" autocomplete="username" required value="{{ request.POST.identifier|default:'' }}"></label><label for="id_password">Password<input id="id_password" type="password" name="password" autocomplete="current-password" required></label><div class="form-options"><label class="check-label"><input type="checkbox" name="remember_me"> Remember me</label><a href="{% url 'password_reset' %}">Forgot password?</a></div><button class="button button-full" type="submit">Sign in</button></form><p class="auth-switch">Don't have an account? <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Register</a></p></div></section>
+<section class="auth-page">
+  <div class="auth-card">
+    <div class="auth-brand-header">
+      <img src="{% static 'images/ingot-logo.png' %}" alt="INGOT" class="auth-logo-img">
+    </div>
+
+    <p class="eyebrow">WELCOME BACK</p>
+    <h1>Sign in to your account</h1>
+    <p class="auth-intro">Shop smart. Discover more.</p>
+
+    <form method="post" class="account-form">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next }}">
+
+      <label for="id_identifier">Email or username
+        <input id="id_identifier" type="text" name="identifier" autocomplete="username" placeholder="name@example.com or username" required value="{{ request.POST.identifier|default:'' }}">
+      </label>
+
+      <label for="id_password">Password
+        <input id="id_password" type="password" name="password" autocomplete="current-password" placeholder="••••••••••••" required>
+      </label>
+
+      <div class="form-options">
+        <label class="check-label">
+          <input type="checkbox" name="remember_me"> Remember me
+        </label>
+        <a href="{% url 'password_reset' %}" class="forgot-link">Forgot password?</a>
+      </div>
+
+      <button class="button button-full button-signin-primary" type="submit">Sign In &rarr;</button>
+    </form>
+
+    <div class="auth-divider">
+      <span>OR</span>
+    </div>
+
+    <div class="social-login-group">
+      <button type="button" class="social-button social-google" title="Social login via Google" disabled>
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3 0-5.5-2-6.4-4.8L1.9 16.4C3.7 20.1 7.5 23 12 23z"/></svg>
+        <span>Continue with Google <small class="oauth-hint">(Configure in Admin)</small></span>
+      </button>
+
+      <button type="button" class="social-button social-x" title="Social login via X" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        <span>Continue with X <small class="oauth-hint">(Configure in Admin)</small></span>
+      </button>
+    </div>
+
+    <p class="auth-switch">Don't have an account? <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Sign up for INGOT</a></p>
+  </div>
+</section>
 {% endblock %}
