@@ -1,9 +1,9 @@
 {% load currency_filters %}
-<article class="product-card marketplace-card">
+<article class="product-card marketplace-card {% if product.is_ingot_original %}originals-card{% endif %}">
   <div class="card-image-wrap">
     <a class="product-image" href="{% url 'product_detail' product.slug %}">
       {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="card-img-element">
       {% else %}
         <div class="product-placeholder category-placeholder category-{{ product.category.slug }}">
           {% if product.category.name == 'Laptops' %}
@@ -28,7 +28,11 @@
       {% endif %}
     </a>
 
+    <!-- Badges Row -->
     <div class="card-badges">
+      {% if product.is_ingot_original %}
+        <span class="badge originals-badge">ORIGINALS</span>
+      {% endif %}
       {% if product.is_deal %}
         <span class="badge deal-badge">DEAL</span>
       {% endif %}
@@ -49,10 +53,10 @@
     </div>
 
     <h3 class="product-title">
-      <a href="{% url 'product_detail' product.slug %}">{{ product.name }}</a>
+      <a href="{% url 'product_detail' product.slug %}" title="{{ product.name }}">{{ product.name }}</a>
     </h3>
 
-    {% if product.rating %}
+    {% if product.rating and product.review_count %}
       <div class="product-rating">
         <span class="rating-pill">
           <span>★</span> {{ product.rating|floatformat:1 }}
@@ -78,7 +82,7 @@
         <form method="post" action="{% url 'add_to_wishlist' product.slug %}" class="wishlist-form">
           {% csrf_token %}
           <input type="hidden" name="next" value="{{ request.get_full_path }}">
-          <button class="card-heart {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit" aria-label="Add {{ product.name }} to wishlist" title="Save to Wishlist">
+          <button class="card-heart {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit" aria-label="Save {{ product.name }} to wishlist" title="Save to Wishlist">
             {% if product.id in wishlist_product_ids %}♥{% else %}♡{% endif %}
           </button>
         </form>
@@ -93,6 +97,9 @@
         <a class="card-heart" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="Sign in to save {{ product.name }}">♡</a>
         <a class="button button-cart" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Add to Cart</a>
       {% endif %}
+    </div>
+    <div class="card-details-row">
+      <a href="{% url 'product_detail' product.slug %}" class="card-view-details-link">View Details &rarr;</a>
     </div>
   </div>
 </article>
