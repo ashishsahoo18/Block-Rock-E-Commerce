@@ -1,37 +1,157 @@
 {% load static %}
 <header class="site-header">
-  <div class="container nav-wrap">
+  <div class="container nav-main-wrap">
+    <!-- Brand Logo -->
     <a class="brand" href="{% url 'home' %}" aria-label="INGOT home">
       <picture>
         <source media="(max-width: 520px)" srcset="{% static 'images/ingot-logo-compact.png' %}">
         <img class="brand-logo" src="{% static 'images/ingot-logo.png' %}" alt="ingot">
       </picture>
     </a>
-    <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>Menu</button>
-    <nav class="primary-nav" data-primary-nav>
-      <a class="active" href="{% url 'home' %}">Home</a>
-      <a href="{% url 'products' %}">Shop</a>
-      <a href="{% url 'home' %}#categories">Categories</a>
-      <a href="{% url 'home' %}#deals">Deals</a>
-      <a href="{% url 'home' %}#about">About</a>
-      <a href="#footer">Contact</a>
-    </nav>
+
+    <!-- Marketplace Global Search Bar with Live Autocomplete -->
+    <div class="nav-search-container">
+      <form action="{% url 'products' %}" method="get" class="nav-search-form" id="nav-search-form">
+        <div class="nav-search-input-wrap">
+          <svg class="search-glass-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="width: 18px; height: 18px; min-width: 18px; max-width: 18px; flex-shrink: 0;" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+          <input
+            type="search"
+            name="search"
+            id="nav-search-input"
+            class="nav-search-input"
+            placeholder="Search products, brands and categories"
+            autocomplete="off"
+            value="{{ query|default:'' }}"
+            aria-label="Search products, brands and categories"
+          >
+          <button type="submit" class="nav-search-button" aria-label="Search">
+            <span>Search</span>
+          </button>
+        </div>
+        <!-- Autocomplete Suggestions Dropdown -->
+        <div class="search-autocomplete-dropdown" id="search-autocomplete-dropdown" style="display: none;"></div>
+      </form>
+    </div>
+
+    <!-- Header Actions (Account, Wishlist, Cart, Auth) -->
     <div class="nav-actions">
-      <a href="#footer" class="desktop-link">Track order</a>
       {% if user.is_authenticated %}
-        <a class="desktop-link" href="{% url 'account' %}">Hi, {{ user.first_name|default:user.username }}</a>
-        <a class="desktop-link" href="{% url 'profile' %}">Profile</a>
-        <a class="desktop-link" href="{% url 'order_list' %}">Orders</a>
-        <a href="{% url 'wishlist_detail' %}" aria-label="Wishlist">Wishlist</a>
-        <a href="{% url 'cart_detail' %}" class="nav-cart" aria-label="Cart">Cart{% if cart_count %}<b>{{ cart_count }}</b>{% endif %}</a>
+        <a class="nav-action-item" href="{% url 'account' %}" title="My Account">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="width:18px;height:18px;flex-shrink:0;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span class="action-label">Hi, {{ user.first_name|default:user.username }}</span>
+        </a>
+        <a class="nav-action-item" href="{% url 'wishlist_detail' %}" title="Wishlist" aria-label="Wishlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="width:18px;height:18px;flex-shrink:0;"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg>
+          <span class="action-label">Wishlist</span>
+          {% if wishlist_product_ids %}
+            <span class="badge-count">{{ wishlist_product_ids|length }}</span>
+          {% endif %}
+        </a>
+        <a class="nav-action-item nav-cart" href="{% url 'cart_detail' %}" title="Cart" aria-label="Cart">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" style="width:18px;height:18px;flex-shrink:0;"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+          <span class="action-label">Cart</span>
+          {% if cart_count %}
+            <span class="badge-count">{{ cart_count }}</span>
+          {% endif %}
+        </a>
         <form class="logout-form" action="{% url 'logout' %}" method="post">
           {% csrf_token %}
-          <button class="nav-logout" type="submit">Logout</button>
+          <button class="nav-logout-btn" type="submit" title="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="width:16px;height:16px;flex-shrink:0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            <span class="logout-text">Logout</span>
+          </button>
         </form>
       {% else %}
-        <a class="desktop-link" href="{% url 'register' %}">Register</a>
-        <a class="button button-small" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in</a>
+        <a class="nav-action-item nav-auth-register" href="{% url 'register' %}">Register</a>
+        <a class="button button-small button-nav-signin" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in</a>
       {% endif %}
+      <button class="menu-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" data-menu-toggle>
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
+
+  <!-- Secondary Marketplace Category Bar -->
+  <nav class="category-subnav" aria-label="Categories">
+    <div class="container subnav-wrap">
+      <a class="subnav-link {% if not selected_category and not collection %}active{% endif %}" href="{% url 'products' %}">All Products</a>
+      <a class="subnav-link {% if collection == 'electronics' %}active{% endif %}" href="{% url 'products' %}?collection=electronics">Electronics</a>
+      <a class="subnav-link {% if selected_category == 'smartphones' %}active{% endif %}" href="{% url 'products' %}?category=smartphones">Mobiles</a>
+      <a class="subnav-link {% if selected_category == 'laptops' %}active{% endif %}" href="{% url 'products' %}?category=laptops">Laptops</a>
+      <a class="subnav-link {% if selected_category == 'audio' %}active{% endif %}" href="{% url 'products' %}?category=audio">Audio</a>
+      <a class="subnav-link {% if selected_category == 'gaming' %}active{% endif %}" href="{% url 'products' %}?category=gaming">Gaming</a>
+      <a class="subnav-link {% if selected_category == 'cameras' %}active{% endif %}" href="{% url 'products' %}?category=cameras">Cameras</a>
+      <a class="subnav-link {% if selected_category == 'wearables' %}active{% endif %}" href="{% url 'products' %}?category=wearables">Wearables</a>
+      <a class="subnav-link {% if selected_category == 'accessories' %}active{% endif %}" href="{% url 'products' %}?category=accessories">Accessories</a>
+      <a class="subnav-link subnav-highlight {% if collection == 'ingot_originals' or request.resolver_match.url_name == 'ingot_originals' %}active{% endif %}" href="{% url 'ingot_originals' %}">
+        <span class="subnav-sparkle">✦</span> INGOT Originals
+      </a>
+      <a class="subnav-link subnav-deal" href="{% url 'products' %}?deal=1">🔥 Deals of the Day</a>
+    </div>
+  </nav>
 </header>
+
+<script>
+  // Autocomplete search behavior
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('nav-search-input');
+    const dropdown = document.getElementById('search-autocomplete-dropdown');
+    let debounceTimer = null;
+
+    if (searchInput && dropdown) {
+      searchInput.addEventListener('input', function() {
+        const val = this.value.trim();
+        clearTimeout(debounceTimer);
+        if (val.length < 2) {
+          dropdown.style.display = 'none';
+          dropdown.innerHTML = '';
+          return;
+        }
+
+        debounceTimer = setTimeout(() => {
+          fetch('/shop/api/search-autocomplete/?q=' + encodeURIComponent(val))
+            .then(res => res.json())
+            .then(data => {
+              if (data.results && data.results.length > 0) {
+                let html = '<div class="autocomplete-list">';
+                data.results.forEach(item => {
+                  html += `
+                    <a href="/shop/${item.slug}/" class="autocomplete-item">
+                      ${item.image_url ? `<img src="${item.image_url}" alt="${item.name}" class="ac-thumb">` : `<span class="ac-icon">✦</span>`}
+                      <div class="ac-details">
+                        <span class="ac-name">${item.name}</span>
+                        <span class="ac-meta">${item.collection} &bull; ${item.category}</span>
+                      </div>
+                      <span class="ac-price">${item.price}</span>
+                    </a>
+                  `;
+                });
+                html += `
+                  <a href="/shop/?search=${encodeURIComponent(val)}" class="ac-view-all">
+                    See all results for "<strong>${val}</strong>" &rarr;
+                  </a>
+                </div>`;
+                dropdown.innerHTML = html;
+                dropdown.style.display = 'block';
+              } else {
+                dropdown.innerHTML = `<div class="ac-no-results">No products found matching "<strong>${val}</strong>"</div>`;
+                dropdown.style.display = 'block';
+              }
+            })
+            .catch(() => {
+              dropdown.style.display = 'none';
+            });
+        }, 250);
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>
