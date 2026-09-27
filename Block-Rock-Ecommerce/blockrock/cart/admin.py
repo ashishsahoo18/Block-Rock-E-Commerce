@@ -6,6 +6,7 @@ from .models import Cart, CartItem, Wishlist, WishlistItem
 class CartItemInline(admin.TabularInline):
     model = CartItem
     extra = 0
+    fields = ('product', 'variant', 'variant_label', 'quantity', 'created_at', 'updated_at')
     readonly_fields = ('created_at', 'updated_at')
 
 
@@ -18,8 +19,8 @@ class CartAdmin(admin.ModelAdmin):
 
 @admin.register(CartItem)
 class CartItemAdmin(admin.ModelAdmin):
-    list_display = ('product', 'cart', 'quantity', 'updated_at')
-    search_fields = ('product__name', 'cart__user__username')
+    list_display = ('product', 'variant_label', 'cart', 'quantity', 'updated_at')
+    search_fields = ('product__name', 'variant_label', 'cart__user__username')
 
 
 @admin.register(Wishlist)
