@@ -2,95 +2,145 @@
 {% load static %}
 {% load currency_filters %}
 
-{% block title %}INGOT | Cart{% endblock %}
+{% block title %}INGOT | Shopping Cart{% endblock %}
 
 {% block content %}
 <section class="cart-page container">
   <div class="page-heading">
-    <p class="eyebrow">YOUR SELECTION</p>
-    <h1>Shopping Cart</h1>
-    <p>Review items in your cart and proceed to secure checkout.</p>
+    <span class="section-eyebrow">YOUR CART</span>
+    <h1 class="page-main-title">Shopping Cart</h1>
+    <p class="page-lead">Review items in your cart, adjust quantities, and proceed to checkout.</p>
   </div>
 
   {% if items %}
     <div class="cart-layout">
-      <!-- Left: Cart Items List -->
-      <div class="cart-items">
+      <!-- Left: Line Items List -->
+      <div class="cart-items-column">
         {% for item in items %}
-          <article class="cart-item profile-card">
-            <a class="cart-item-image" href="{% url 'product_detail' item.product.slug %}">
-              {% if item.product.image %}
+          <article class="cart-line-item" data-item-id="{{ item.id }}">
+            <a class="cart-item-image-wrap" href="{% url 'product_detail' item.product.slug %}">
+              {% if item.product.primary_image_url %}
+                <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}">
+              {% elif item.product.image %}
                 <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
               {% else %}
-                <span class="cart-item-placeholder">✦</span>
+                <span class="cart-item-placeholder">INGOT</span>
               {% endif %}
             </a>
 
-            <div class="cart-item-main">
-              <span class="product-brand">{{ item.product.brand|default:'INGOT' }}</span>
-              <h2><a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a></h2>
-              <p class="stock-status in-stock">✓ {{ item.product.stock }} available in stock</p>
-            </div>
-
-            <div class="cart-item-price">
-              <strong>{{ item.product.current_price|rupee }}</strong>
-              {% if item.product.discount_price %}
-                <del>{{ item.product.price|rupee }}</del>
+            <div class="cart-item-details">
+              <span class="cart-item-brand">{{ item.product.brand|default:'INGOT' }}</span>
+              <h2 class="cart-item-name">
+                <a href="{% url 'product_detail' item.product.slug %}">{{ item.product.name }}</a>
+              </h2>
+              
+              {% if item.variant_label %}
+                <div class="cart-item-variant-tag">
+                  <span>{{ item.variant_label }}</span>
+                </div>
               {% endif %}
+
+              <div class="cart-item-price-row">
+                <strong class="item-unit-price">{{ item.unit_price|rupee }}</strong>
+                {% if item.product.mrp %}
+                  <del class="item-mrp">{{ item.product.mrp|rupee }}</del>
+                {% elif item.product.discount_price and item.product.price > item.product.discount_price %}
+                  <del class="item-mrp">{{ item.product.price|rupee }}</del>
+                {% endif %}
+              </div>
             </div>
 
-            <div class="cart-item-actions">
-              <form method="post" action="{% url 'update_cart_item' item.id %}" class="quantity-picker-ui">
+            <!-- Quantity Stepper -->
+            <div class="cart-item-stepper-wrap">
+              <form method="post" action="{% url 'update_cart_item' item.id %}" class="cart-qty-form">
                 {% csrf_token %}
-                <button name="action" value="decrease" type="submit" class="qty-btn" aria-label="Decrease {{ item.product.name }} quantity">−</button>
-                <span class="qty-number">{{ item.quantity }}</span>
-                <button name="action" value="increase" type="submit" class="qty-btn" aria-label="Increase {{ item.product.name }} quantity">+</button>
+                <div class="quantity-picker-ui">
+                  <button name="action" value="decrease" type="submit" class="qty-btn" aria-label="Decrease quantity">&minus;</button>
+                  <span class="qty-number">{{ item.quantity }}</span>
+                  <button name="action" value="increase" type="submit" class="qty-btn" aria-label="Increase quantity" {% if item.quantity >= item.available_stock %}disabled{% endif %}>&plus;</button>
+                </div>
               </form>
+              <span class="item-stock-note">{% if item.available_stock <= 5 %}Only {{ item.available_stock }} left{% else %}In stock{% endif %}</span>
+            </div>
 
-              <strong class="cart-subtotal">{{ item.subtotal|rupee }}</strong>
+            <!-- Subtotal & Actions -->
+            <div class="cart-item-subtotal-actions">
+              <div class="line-subtotal-box">
+                <span class="subtotal-label">Subtotal:</span>
+                <strong class="cart-subtotal">{{ item.subtotal|rupee }}</strong>
+              </div>
 
-              <form method="post" action="{% url 'remove_from_cart' item.id %}" class="remove-cart-form">
-                {% csrf_token %}
-                <button class="text-button danger" type="submit" title="Remove item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                  <span>Remove</span>
-                </button>
-              </form>
+              <div class="cart-row-actions">
+                <!-- Move to Wishlist action -->
+                <form method="post" action="{% url 'add_to_wishlist' item.product.slug %}" class="inline-action-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="next" value="{% url 'cart_detail' %}">
+                  <button class="cart-action-link wishlist-move-btn" type="submit" title="Save to wishlist">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    <span>Save for Later</span>
+                  </button>
+                </form>
+
+                <!-- Remove from Cart action -->
+                <form method="post" action="{% url 'remove_from_cart' item.id %}" class="inline-action-form">
+                  {% csrf_token %}
+                  <button class="cart-action-link remove-btn danger" type="submit" title="Remove item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    <span>Remove</span>
+                  </button>
+                </form>
+              </div>
             </div>
           </article>
         {% endfor %}
       </div>
 
-      <!-- Right: Order Summary Sidebar -->
-      <aside class="cart-summary">
-        <p class="eyebrow">ORDER SUMMARY</p>
-        <div class="summary-line">
-          <span>Items ({{ cart.item_count }})</span>
-          <strong>{{ total|rupee }}</strong>
-        </div>
-        <div class="summary-line">
-          <span>Estimated Delivery</span>
-          <strong class="shipping-free">Fast Dispatch</strong>
-        </div>
-        <div class="summary-total">
-          <span>Estimated Total</span>
-          <strong>{{ total|rupee }}</strong>
-        </div>
+      <!-- Right: Sticky Order Summary -->
+      <aside class="cart-summary-sidebar">
+        <div class="cart-summary-card">
+          <span class="section-eyebrow">ORDER SUMMARY</span>
+          <div class="summary-breakdown">
+            <div class="summary-line">
+              <span>Subtotal ({{ cart.item_count }} item{{ cart.item_count|pluralize }})</span>
+              <strong>{{ total|rupee }}</strong>
+            </div>
+            <div class="summary-line">
+              <span>Insured Shipping</span>
+              <strong class="shipping-free">Calculated at Checkout</strong>
+            </div>
+            <div class="summary-line tax-line">
+              <span>Estimated Taxes</span>
+              <span>Included</span>
+            </div>
+            <div class="summary-total-line">
+              <span>Estimated Total</span>
+              <strong class="grand-total">{{ total|rupee }}</strong>
+            </div>
+          </div>
 
-        <a class="button button-full button-checkout-primary" href="{% url 'checkout' %}">
-          <span>Proceed to Checkout</span> &rarr;
-        </a>
-        <a class="continue-link" href="{% url 'products' %}">&larr; Continue shopping</a>
+          <a class="button button-cyan button-full button-checkout-cta" href="{% url 'checkout' %}">
+            <span>PROCEED TO CHECKOUT</span> &rarr;
+          </a>
+
+          <a class="continue-shopping-link" href="{% url 'products' %}">&larr; Continue shopping</a>
+        </div>
       </aside>
     </div>
   {% else %}
-    <div class="empty-products empty-cart">
-      <div class="empty-cart-icon">🛒</div>
-      <h2>Your cart is empty</h2>
-      <p>Looks like you haven't added anything yet. Discover our latest electronics and INGOT Originals.</p>
-      <div class="empty-cart-actions">
-        <a class="button" href="{% url 'products' %}">Browse All Products</a>
-        <a class="button button-ghost" href="{% url 'ingot_originals' %}">Explore Originals</a>
+    <!-- Empty Cart State -->
+    <div class="empty-results-state empty-cart-box">
+      <div class="empty-state-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56">
+          <circle cx="8" cy="21" r="1"></circle>
+          <circle cx="19" cy="21" r="1"></circle>
+          <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+        </svg>
+      </div>
+      <h2 class="empty-state-title">Your shopping cart is empty</h2>
+      <p class="empty-state-desc">You have no items in your cart. Explore our newest apparel drops and curated electronics.</p>
+      <div class="empty-state-cta-row">
+        <a class="button button-hero-primary" href="{% url 'products' %}">Browse Catalogue</a>
+        <a class="button button-hero-secondary" href="{% url 'ingot_originals' %}">✦ INGOT Originals</a>
       </div>
     </div>
   {% endif %}
