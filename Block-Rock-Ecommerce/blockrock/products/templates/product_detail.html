@@ -1,5 +1,298 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
 {% block title %}INGOT | {{ product.name }}{% endblock %}
+
 {% block content %}
-<section class="product-detail container"><a class="back-link" href="{% url 'products' %}">&larr; Back to shop</a><div class="detail-grid"><div class="detail-image">{% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">{% else %}<span>✦</span>{% endif %}</div><div class="detail-copy"><p class="eyebrow">{{ product.category.name }} &middot; {{ product.brand }}</p><h1>{{ product.name }}</h1><div class="detail-rating"><span>★</span> {{ product.rating|floatformat:1 }} <small>{{ product.review_count }} customer reviews</small></div><div class="detail-price"><strong>₹{{ product.current_price }}</strong>{% if product.discount_price %}<del>₹{{ product.price }}</del><span>{{ product.discount_percentage }}% off</span>{% endif %}</div><p class="detail-description">{{ product.description }}</p><p class="stock-status {% if product.in_stock %}in-stock{% else %}out-stock{% endif %}">{% if product.in_stock %}In stock — {{ product.stock }} available{% else %}Currently out of stock{% endif %}</p><div class="purchase-row">{% if user.is_authenticated %}<form method="post" action="{% url 'add_to_cart' product.slug %}" class="add-cart-form">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><div class="quantity-picker"><button type="button" data-quantity-minus aria-label="Decrease quantity">−</button><input name="quantity" value="1" min="1" max="{{ product.stock }}" type="number" data-quantity-input><button type="button" data-quantity-plus aria-label="Increase quantity">+</button></div><button class="button {% if not product.in_stock %}button-disabled{% endif %}" {% if not product.in_stock %}disabled{% endif %} type="submit">{% if product.in_stock %}Add to cart{% else %}Unavailable{% endif %}</button></form><form method="post" action="{% url 'add_to_wishlist' product.slug %}">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="wish-button {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit" aria-label="Add {{ product.name }} to wishlist">{% if product.id in wishlist_product_ids %}♥{% else %}♡{% endif %}</button></form>{% else %}<a class="button" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in to add to cart</a><a class="wish-button" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}" aria-label="Sign in to save this product">♡</a>{% endif %}</div><p class="detail-note">Your cart and wishlist are saved securely to your account.</p></div></div></section>
+<div class="product-detail-page container">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+    <a href="{% url 'home' %}">Home</a> &rsaquo;
+    <a href="{% url 'products' %}">Shop</a> &rsaquo;
+    {% if product.is_ingot_original %}
+      <a href="{% url 'ingot_originals' %}">INGOT Originals</a> &rsaquo;
+    {% else %}
+      <a href="{% url 'products' %}?collection=electronics">Electronics</a> &rsaquo;
+    {% endif %}
+    <a href="{% url 'products' %}?category={{ product.category.slug }}">{{ product.category.name }}</a> &rsaquo;
+    <span class="active-crumb">{{ product.name }}</span>
+  </nav>
+
+  <!-- Product Showcase Grid -->
+  <div class="product-showcase-grid">
+    <!-- Left Column: Large Product Image -->
+    <div class="detail-gallery">
+      <div class="main-image-container">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-main-img">
+        {% else %}
+          <div class="detail-placeholder-box category-placeholder category-{{ product.category.slug }}">
+            {% if product.category.name == 'Laptops' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
+            {% elif product.category.name == 'Smartphones' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg>
+            {% elif product.category.name == 'Audio' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+            {% elif product.category.name == 'Wearables' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><circle cx="12" cy="12" r="6"/><path d="M12 2v4M12 18v4"/></svg>
+            {% elif product.category.name == 'Cameras' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+            {% elif product.category.name == 'Gaming' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4"/><circle cx="17" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/></svg>
+            {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            {% endif %}
+            <span class="placeholder-caption">{{ product.category.name }}</span>
+          </div>
+        {% endif %}
+
+        <div class="detail-floating-badges">
+          {% if product.is_ingot_original %}
+            <span class="badge originals-badge">INGOT ORIGINALS</span>
+          {% endif %}
+          {% if product.is_deal %}
+            <span class="badge deal-badge">DEAL</span>
+          {% endif %}
+          {% if product.discount_percentage %}
+            <span class="badge discount-badge">-{{ product.discount_percentage }}%</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Product Info & Actions -->
+    <div class="detail-content">
+      <div class="detail-header-meta">
+        <span class="product-brand-tag">{{ product.brand|default:'INGOT' }}</span>
+        <span class="meta-dot">&bull;</span>
+        <span class="product-cat-tag">{{ product.category.name }}</span>
+        {% if product.is_ingot_original %}
+          <span class="meta-dot">&bull;</span>
+          <span class="collection-highlight-tag">Collection: <strong>INGOT Originals</strong></span>
+        {% else %}
+          <span class="meta-dot">&bull;</span>
+          <span class="collection-highlight-tag">Collection: <strong>Electronics</strong></span>
+        {% endif %}
+      </div>
+
+      <h1 class="detail-product-name">{{ product.name }}</h1>
+
+      {% if product.short_description %}
+        <p class="detail-short-desc">{{ product.short_description }}</p>
+      {% endif %}
+
+      {% if product.rating and product.review_count %}
+        <div class="detail-rating-row">
+          <span class="rating-badge">★ {{ product.rating|floatformat:1 }}</span>
+          <span class="review-text">{{ product.review_count }} verified buyer rating{{ product.review_count|pluralize }}</span>
+        </div>
+      {% endif %}
+
+      <!-- Price Section -->
+      <div class="detail-price-box">
+        <div class="price-main-display">
+          <span class="price-value">{{ product.current_price|rupee }}</span>
+          {% if product.discount_price %}
+            <del class="price-mrp">{{ product.price|rupee }}</del>
+            <span class="discount-save-tag">Save {{ product.discount_percentage }}%</span>
+          {% endif %}
+        </div>
+        <small class="tax-inclusive-note">Inclusive of all taxes &bull; Cash on Delivery available</small>
+      </div>
+
+      <!-- Stock & Availability Indicator -->
+      <div class="detail-stock-row">
+        {% if product.in_stock %}
+          <div class="stock-indicator in-stock">
+            <span class="stock-pulse"></span>
+            <strong>In Stock</strong>
+            <span class="stock-units">— {{ product.stock }} units available ready to ship</span>
+          </div>
+        {% else %}
+          <div class="stock-indicator out-stock">
+            <span class="stock-pulse-red"></span>
+            <strong>Currently Out of Stock</strong>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Purchase Actions (Quantity, Add to Cart, Buy Now, Wishlist) -->
+      <div class="detail-actions-panel">
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'add_to_cart' product.slug %}" class="detail-cart-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            
+            <div class="qty-selector-group">
+              <label for="quantity-input">Quantity:</label>
+              <div class="quantity-picker-ui">
+                <button type="button" class="qty-btn" onclick="decreaseQty()" aria-label="Decrease quantity">−</button>
+                <input id="quantity-input" name="quantity" value="1" min="1" max="{{ product.stock }}" type="number" readonly>
+                <button type="button" class="qty-btn" onclick="increaseQty({{ product.stock }})" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+
+            <div class="detail-button-row">
+              <button class="button button-cart-primary" {% if not product.in_stock %}disabled{% endif %} type="submit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+                <span>Add to Cart</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Buy Now Form (Adds to cart & redirects directly to checkout) -->
+          <form method="post" action="{% url 'add_to_cart' product.slug %}" class="buy-now-form">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" id="buy-now-qty" value="1">
+            <input type="hidden" name="next" value="{% url 'checkout' %}">
+            <button class="button button-buy-now" {% if not product.in_stock %}disabled{% endif %} type="submit">
+              <span>⚡ Buy Now</span>
+            </button>
+          </form>
+
+          <form method="post" action="{% url 'add_to_wishlist' product.slug %}" class="detail-wishlist-form">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="button button-ghost button-wishlist-toggle {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit">
+              <span>{% if product.id in wishlist_product_ids %}♥ Saved in Wishlist{% else %}♡ Save to Wishlist{% endif %}</span>
+            </button>
+          </form>
+        {% else %}
+          <div class="auth-required-cta">
+            <a class="button button-full" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in to Buy &amp; Add to Cart</a>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Trust & Delivery Per-Product Guarantees -->
+      <div class="delivery-guarantee-card">
+        <div class="guarantee-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+          <div>
+            <strong>Fast Doorstep Delivery</strong>
+            <small>Dispatch in 24-48 hours. Free shipping on orders over ₹999.</small>
+          </div>
+        </div>
+        <div class="guarantee-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          <div>
+            <strong>100% Genuine INGOT Product</strong>
+            <small>Verified authentic design and direct quality inspection.</small>
+          </div>
+        </div>
+        <div class="guarantee-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
+          <div>
+            <strong>30-Day Hassle-Free Returns</strong>
+            <small>Easy exchange or return if not completely satisfied.</small>
+          </div>
+        </div>
+        <div class="guarantee-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
+          <div>
+            <strong>Cash on Delivery Eligible</strong>
+            <small>Pay with cash or card upon delivery.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Full Description & Specifications Tab -->
+  <section class="detail-specifications-section">
+    <div class="spec-tabs">
+      <span class="spec-tab active">Product Description &amp; Details</span>
+    </div>
+    <div class="spec-content profile-card">
+      <h3>About this item</h3>
+      <p class="description-body">{{ product.description }}</p>
+
+      {% if product.is_ingot_original %}
+        <div class="lifestyle-specs-grid">
+          <div class="spec-item">
+            <span class="spec-label">Collection</span>
+            <span class="spec-val">INGOT Originals</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Category</span>
+            <span class="spec-val">{{ product.category.name }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Brand</span>
+            <span class="spec-val">INGOT</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Care Instructions</span>
+            <span class="spec-val">Machine wash cold inside out, tumble dry low or air dry.</span>
+          </div>
+        </div>
+      {% else %}
+        <div class="lifestyle-specs-grid">
+          <div class="spec-item">
+            <span class="spec-label">Brand</span>
+            <span class="spec-val">INGOT</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Category</span>
+            <span class="spec-val">{{ product.category.name }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Warranty</span>
+            <span class="spec-val">1 Year Official INGOT Manufacturer Warranty</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Package Contents</span>
+            <span class="spec-val">1 × {{ product.name }}, User Documentation, Warranty Card.</span>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Related Products Section -->
+  {% if related_products %}
+    <section class="related-products-section">
+      <div class="section-header-row">
+        <div>
+          <span class="eyebrow">EXPLORE MORE</span>
+          <h2 class="section-title">Similar Products You Might Like</h2>
+        </div>
+        <a href="{% url 'products' %}?category={{ product.category.slug }}" class="section-view-all">
+          View more in {{ product.category.name }} &rarr;
+        </a>
+      </div>
+
+      <div class="product-grid">
+        {% for rel in related_products %}
+          {% include 'includes/product_card.html' with product=rel %}
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+</div>
+
+<script>
+  function increaseQty(maxStock) {
+    const input = document.getElementById('quantity-input');
+    const buyNowQty = document.getElementById('buy-now-qty');
+    let val = parseInt(input.value) || 1;
+    if (val < maxStock) {
+      val += 1;
+      input.value = val;
+      if (buyNowQty) buyNowQty.value = val;
+    }
+  }
+
+  function decreaseQty() {
+    const input = document.getElementById('quantity-input');
+    const buyNowQty = document.getElementById('buy-now-qty');
+    let val = parseInt(input.value) || 1;
+    if (val > 1) {
+      val -= 1;
+      input.value = val;
+      if (buyNowQty) buyNowQty.value = val;
+    }
+  }
+</script>
 {% endblock %}
