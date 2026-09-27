@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}INGOT | INGOT Originals{% endblock %}
+
+{% block content %}
+<div class="marketplace-wrapper container">
+  <!-- Originals Hero Banner -->
+  <header class="originals-header-banner">
+    <div class="originals-banner-content">
+      <span class="eyebrow-cyan">PROPRIETARY LIFESTYLE COLLECTION</span>
+      <h1>INGOT Originals</h1>
+      <p class="originals-subtitle">"Designed by INGOT. Made for everyday life."</p>
+      <p class="originals-desc">
+        Engineered with the same precision as our tech devices. Minimalist 100% organic cotton streetwear, heavyweight French terry fleece, structured caps, modular travel bags, and modern workspace essentials.
+      </p>
+
+      <!-- Category Filter Pills -->
+      <div class="originals-category-pills">
+        <a href="{% url 'ingot_originals' %}" class="cat-pill {% if not selected_category %}active{% endif %}">All Originals ({{ total_results }})</a>
+        {% for cat in categories %}
+          <a href="{% url 'ingot_originals' %}?category={{ cat.slug }}" class="cat-pill {% if selected_category == cat.slug %}active{% endif %}">
+            {{ cat.name }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Control Toolbar -->
+  <div class="marketplace-toolbar">
+    <button type="button" class="filter-toggle-btn" id="filter-toggle-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
+      <span>Filter Collection</span>
+    </button>
+
+    <div class="results-count">
+      <strong>{{ total_results }}</strong> product{{ total_results|pluralize }} in INGOT Originals
+      {% if page_obj.paginator.num_pages > 1 %}
+        <span class="page-indicator">(Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }})</span>
+      {% endif %}
+    </div>
+
+    <!-- Sorting Control -->
+    <form method="get" class="sort-form" id="sort-form">
+      {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
+      {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
+      {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+      {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+      {% if in_stock %}<input type="hidden" name="in_stock" value="1">{% endif %}
+      {% if deal %}<input type="hidden" name="deal" value="1">{% endif %}
+      {% if featured %}<input type="hidden" name="featured" value="1">{% endif %}
+
+      <label for="sort-select">Sort by:</label>
+      <select name="sort" id="sort-select" onchange="this.form.submit()">
+        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Drops</option>
+        <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+        <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+        <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
+      </select>
+    </form>
+  </div>
+
+  <!-- Active Filter Chips -->
+  {% if selected_category or min_price or max_price or in_stock or deal or featured or query %}
+    <div class="active-filters-bar">
+      <span class="active-label">Active Filters:</span>
+      {% if query %}<span class="filter-chip">Query: "{{ query }}"</span>{% endif %}
+      {% if selected_category %}<span class="filter-chip">Category: {{ selected_category|title }}</span>{% endif %}
+      {% if min_price %}<span class="filter-chip">Min: ₹{{ min_price }}</span>{% endif %}
+      {% if max_price %}<span class="filter-chip">Max: ₹{{ max_price }}</span>{% endif %}
+      {% if in_stock %}<span class="filter-chip">In Stock Only</span>{% endif %}
+      {% if deal %}<span class="filter-chip">Deals Only</span>{% endif %}
+      {% if featured %}<span class="filter-chip">Featured Only</span>{% endif %}
+      <a href="{% url 'ingot_originals' %}" class="clear-all-link">Reset all filters</a>
+    </div>
+  {% endif %}
+
+  <!-- Main Marketplace Layout Grid -->
+  <div class="marketplace-body">
+    <!-- Left Sidebar / Drawer -->
+    <aside class="marketplace-sidebar" id="marketplace-sidebar">
+      <div class="sidebar-header">
+        <h3>Filter Originals</h3>
+        <button type="button" class="close-sidebar-btn" id="close-sidebar-btn">&times;</button>
+      </div>
+
+      <form action="{% url 'ingot_originals' %}" method="get" class="filter-form">
+        {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
+        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+
+        <!-- Categories -->
+        <div class="filter-group">
+          <h4>Originals Categories</h4>
+          <ul class="category-filter-list">
+            <li>
+              <label class="category-radio">
+                <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %} onchange="this.form.submit()">
+                <span>All Categories</span>
+              </label>
+            </li>
+            {% for cat in categories %}
+              <li>
+                <label class="category-radio">
+                  <input type="radio" name="category" value="{{ cat.slug }}" {% if selected_category == cat.slug %}checked{% endif %} onchange="this.form.submit()">
+                  <span>{{ cat.name }}</span>
+                </label>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Price Range Filter -->
+        <div class="filter-group">
+          <h4>Price Range (₹)</h4>
+          <div class="price-inputs-row">
+            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min ₹" min="0" step="100">
+            <span>to</span>
+            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max ₹" min="0" step="100">
+          </div>
+        </div>
+
+        <!-- Special Filters -->
+        <div class="filter-group">
+          <h4>Availability & Offers</h4>
+          <label class="checkbox-filter">
+            <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %}>
+            <span>In Stock Only</span>
+          </label>
+          <label class="checkbox-filter">
+            <input type="checkbox" name="deal" value="1" {% if deal %}checked{% endif %}>
+            <span>Deals & Discounted</span>
+          </label>
+          <label class="checkbox-filter">
+            <input type="checkbox" name="featured" value="1" {% if featured %}checked{% endif %}>
+            <span>Featured Selection</span>
+          </label>
+        </div>
+
+        <div class="filter-actions">
+          <button type="submit" class="button button-full">Apply Filters</button>
+          <a href="{% url 'ingot_originals' %}" class="button button-ghost button-full">Reset</a>
+        </div>
+      </form>
+    </aside>
+
+    <!-- Right Side Product Listing -->
+    <main class="marketplace-main">
+      {% if products %}
+        <div class="product-grid shop-product-grid">
+          {% for product in products %}
+            {% include 'includes/product_card.html' %}
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.paginator.num_pages > 1 %}
+          <nav class="pagination-nav" aria-label="Product Page Navigation">
+            <ul class="pagination-list">
+              {% if page_obj.has_previous %}
+                <li>
+                  <a href="?page={{ page_obj.previous_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link prev-link">&laquo; Prev</a>
+                </li>
+              {% else %}
+                <li><span class="page-link prev-link disabled">&laquo; Prev</span></li>
+              {% endif %}
+
+              {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                  <li><span class="page-link active">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li>
+                    <a href="?page={{ num }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+                <li>
+                  <a href="?page={{ page_obj.next_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link next-link">Next &raquo;</a>
+                </li>
+              {% else %}
+                <li><span class="page-link next-link disabled">Next &raquo;</span></li>
+              {% endif %}
+            </ul>
+          </nav>
+        {% endif %}
+
+      {% else %}
+        <div class="empty-products marketplace-empty">
+          <div class="empty-icon">⌕</div>
+          <h3>No products match your criteria</h3>
+          <p>Try adjusting your search terms or category selection in INGOT Originals.</p>
+          <a href="{% url 'ingot_originals' %}" class="button">Reset All Filters</a>
+        </div>
+      {% endif %}
+    </main>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const toggleBtn = document.getElementById('filter-toggle-btn');
+    const closeBtn = document.getElementById('close-sidebar-btn');
+    const sidebar = document.getElementById('marketplace-sidebar');
+
+    if (toggleBtn && sidebar) {
+      toggleBtn.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+      });
+    }
+
+    if (closeBtn && sidebar) {
+      closeBtn.addEventListener('click', function() {
+        sidebar.classList.remove('active');
+      });
+    }
+  });
+</script>
+{% endblock %}
