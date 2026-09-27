@@ -28,20 +28,35 @@ class Cart(models.Model):
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey('products.Product', on_delete=models.CASCADE, related_name='cart_items')
+    variant = models.ForeignKey('products.ProductVariant', on_delete=models.SET_NULL, null=True, blank=True, related_name='cart_items')
+    variant_label = models.CharField(max_length=120, blank=True)
     quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['-created_at']
-        constraints = [models.UniqueConstraint(fields=['cart', 'product'], name='unique_cart_product')]
+        constraints = [models.UniqueConstraint(fields=['cart', 'product', 'variant'], name='unique_cart_product_variant')]
+
+    @property
+    def unit_price(self):
+        if self.variant and self.variant.price_override is not None:
+            return self.variant.price_override
+        return self.product.current_price
 
     @property
     def subtotal(self):
-        return self.product.current_price * self.quantity
+        return self.unit_price * self.quantity
+
+    @property
+    def available_stock(self):
+        if self.variant:
+            return self.variant.stock
+        return self.product.stock
 
     def __str__(self):
-        return f'{self.quantity} × {self.product.name}'
+        lbl = f" ({self.variant_label})" if self.variant_label else ""
+        return f'{self.quantity} × {self.product.name}{lbl}'
 
 
 class Wishlist(models.Model):
