@@ -11,6 +11,10 @@ class Category(models.Model):
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='categories/', blank=True)
+    is_ingot_original = models.BooleanField(
+        default=False,
+        help_text="Designates whether this category belongs to the INGOT Originals collection."
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -47,6 +51,11 @@ class Product(models.Model):
     review_count = models.PositiveIntegerField(default=0)
     is_featured = models.BooleanField(default=False)
     is_deal = models.BooleanField(default=False)
+    is_ingot_original = models.BooleanField(
+        default=False,
+        verbose_name="INGOT Original",
+        help_text="Designates whether this product belongs to the INGOT Originals collection."
+    )
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -82,6 +91,14 @@ class Product(models.Model):
     @property
     def in_stock(self):
         return self.stock > 0
+
+    @property
+    def collection_name(self):
+        return "INGOT Originals" if self.is_ingot_original else "Electronics"
+
+    @property
+    def is_original(self):
+        return self.is_ingot_original or (self.category and getattr(self.category, 'is_ingot_original', False))
 
     def __str__(self):
         return self.name
