@@ -9,15 +9,39 @@ from products.models import Category, Product
 from products import views as product_views
 
 
+from products.models import Category, Product, Banner
+
+
 @login_required
 def home(request):
+    banners = Banner.objects.filter(is_active=True).order_by('sort_order', '-created_at')
+
+    # Live sectioned rails per Phase 4 UX spec
+    tshirt_rail = (
+        Product.objects.filter(is_active=True, category__name='T-Shirts')
+        .select_related('category').prefetch_related('images')[:8]
+    )
+    hoodie_rail = (
+        Product.objects.filter(is_active=True, category__name='Hoodies')
+        .select_related('category').prefetch_related('images')[:8]
+    )
+    deal_rail = (
+        Product.objects.filter(is_active=True, is_deal=True)
+        .select_related('category').prefetch_related('images')[:8]
+    )
+    featured_rail = (
+        Product.objects.filter(is_active=True, is_featured=True)
+        .select_related('category').prefetch_related('images')[:8]
+    )
+
+    # Legacy/compatibility querysets
     featured_electronics = (
         Product.objects.filter(is_featured=True, is_ingot_original=False, is_active=True)
         .select_related('category')[:4]
     )
     ingot_originals_featured = (
         Product.objects.filter(is_ingot_original=True, is_active=True)
-        .select_related('category')[:4]
+        .select_related('category')[:8]
     )
     deals_of_the_day = (
         Product.objects.filter(is_deal=True, is_active=True)
@@ -36,6 +60,11 @@ def home(request):
     active_subscriber_count = Subscriber.objects.filter(is_active=True).count()
 
     return render(request, 'home.html', {
+        'banners': banners,
+        'tshirt_rail': tshirt_rail,
+        'hoodie_rail': hoodie_rail,
+        'deal_rail': deal_rail,
+        'featured_rail': featured_rail,
         'featured_electronics': featured_electronics,
         'featured_products': featured_electronics,  # backwards compatibility with existing templates
         'ingot_originals_featured': ingot_originals_featured,
