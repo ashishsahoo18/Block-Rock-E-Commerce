@@ -106,3 +106,39 @@ class ProductCatalogueAndShopTests(TestCase):
         response = self.client.get(reverse('product_detail', args=[product.slug]))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, product.name)
+
+    def test_seed_ingot_originals_and_collection_page(self):
+        call_command('seed_ingot_originals')
+        active_electronics = Product.objects.filter(is_active=True, is_ingot_original=False).count()
+        active_originals = Product.objects.filter(is_active=True, is_ingot_original=True).count()
+        total_active = Product.objects.filter(is_active=True).count()
+        self.assertEqual(active_electronics, 50)
+        self.assertEqual(active_originals, 20)
+        self.assertEqual(total_active, 70)
+
+        # Test dedicated INGOT Originals collection page
+        response = self.client.get(reverse('ingot_originals'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'ingot_originals.html')
+        self.assertEqual(response.context['total_results'], 20)
+
+    def test_search_autocomplete_api(self):
+        response = self.client.get(reverse('search_autocomplete') + '?q=ProBook')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertIn('results', data)
+        self.assertTrue(len(data['results']) > 0)
+        self.assertIn('ProBook', data['results'][0]['name'])
+
+    def test_collection_filter(self):
+        call_command('seed_ingot_originals')
+        # Filter electronics only
+        resp_elect = self.client.get(reverse('products'), {'collection': 'electronics'})
+        self.assertEqual(resp_elect.status_code, 200)
+        self.assertEqual(resp_elect.context['total_results'], 50)
+
+        # Filter originals only
+        resp_orig = self.client.get(reverse('products'), {'collection': 'ingot_originals'})
+        self.assertEqual(resp_orig.status_code, 200)
+        self.assertEqual(resp_orig.context['total_results'], 20)
+
