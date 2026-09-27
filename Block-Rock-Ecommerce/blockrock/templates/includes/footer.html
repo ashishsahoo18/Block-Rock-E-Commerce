@@ -1,11 +1,50 @@
 {% load static %}
 <footer class="site-footer" id="footer">
   <div class="container footer-grid">
-    <div><a class="brand" href="{% url 'home' %}" aria-label="INGOT home"><picture><source media="(max-width: 520px)" srcset="{% static 'images/ingot-logo-compact.png' %}"><img class="brand-logo footer-logo" src="{% static 'images/ingot-logo.png' %}" alt="INGOT"></picture></a><p>Smart technology selected for your everyday momentum.</p><div class="socials"><a href="https://www.linkedin.com/in/ashish-sahoo-630626411/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a><a href="https://x.com/AshishSaho96222" target="_blank" rel="noopener noreferrer" aria-label="X">𝕏</a><a href="https://www.instagram.com/ashish_sahoo_18/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">◎</a></div></div>
-    <div><h3>Shop</h3><a href="{% url 'products' %}">All products</a><a href="#categories">Categories</a><a href="#deals">Weekly offers</a></div>
-    <div><h3>Customer care</h3><a href="#footer">Track order</a><a href="#footer">Shipping &amp; returns</a><a href="#footer">Help centre</a></div>
-    <div><h3>Company</h3><a href="#about">Our story</a><a href="#footer">Contact</a><a href="#footer">Careers</a></div>
-    <div><h3>Legal</h3><a href="#footer">Privacy</a><a href="#footer">Terms</a><a href="#footer">Cookies</a></div>
+    <div>
+      <a class="brand" href="{% url 'home' %}" aria-label="INGOT home">
+        <picture>
+          <source media="(max-width: 520px)" srcset="{% static 'images/ingot-logo-compact.png' %}">
+          <img class="brand-logo footer-logo" src="{% static 'images/ingot-logo-white.png' %}" alt="INGOT">
+        </picture>
+      </a>
+      <p>Shop Smart. Discover More. Modern tech, audio, gear, and INGOT Originals lifestyle collection.</p>
+      <div class="socials">
+        <a href="https://www.linkedin.com/in/ashish-sahoo-630626411/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+        <a href="https://x.com/AshishSaho96222" target="_blank" rel="noopener noreferrer" aria-label="X">𝕏</a>
+        <a href="https://www.instagram.com/ashish_sahoo_18/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">◎</a>
+      </div>
+    </div>
+    <div>
+      <h3>Shop</h3>
+      <a href="{% url 'products' %}">All Products</a>
+      <a href="{% url 'products' %}?collection=electronics">Electronics</a>
+      <a href="{% url 'ingot_originals' %}">INGOT Originals</a>
+      <a href="{% url 'products' %}?deal=1">Deals of the Day</a>
+    </div>
+    <div>
+      <h3>Customer Care</h3>
+      <a href="{% url 'order_list' %}">My Orders &amp; Tracking</a>
+      <a href="#footer">Shipping &amp; Returns</a>
+      <a href="#footer">Cash on Delivery Info</a>
+      <a href="#footer">Help Centre</a>
+    </div>
+    <div>
+      <h3>Account</h3>
+      <a href="{% url 'account' %}">Customer Dashboard</a>
+      <a href="{% url 'profile' %}">Profile Details</a>
+      <a href="{% url 'cart_detail' %}">Shopping Cart</a>
+      <a href="{% url 'wishlist_detail' %}">Saved Wishlist</a>
+    </div>
+    <div>
+      <h3>Legal &amp; Privacy</h3>
+      <a href="#footer">Privacy Policy</a>
+      <a href="#footer">Terms of Service</a>
+      <a href="#footer">Authenticity Guarantee</a>
+    </div>
   </div>
-  <div class="container footer-bottom"><span>© {% now 'Y' %} INGOT</span><span>Built for better tech days.</span></div>
+  <div class="container footer-bottom">
+    <span>&copy; {% now 'Y' %} INGOT. All rights reserved.</span>
+    <span>Shop Smart. Discover More.</span>
+  </div>
 </footer>
