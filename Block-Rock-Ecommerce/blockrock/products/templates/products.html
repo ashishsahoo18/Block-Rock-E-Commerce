@@ -1,19 +1,43 @@
 {% extends 'base.html' %}
-{% block title %}INGOT | Shop{% endblock %}
+{% load static %}
+{% load currency_filters %}
+
+{% block title %}INGOT | {% if query %}Search: {{ query }}{% elif collection == 'electronics' %}Electronics{% elif collection == 'ingot_originals' %}INGOT Originals{% elif selected_category %}{{ selected_category|title }}{% else %}Marketplace{% endif %}{% endblock %}
+
 {% block content %}
 <div class="marketplace-wrapper container">
   <!-- Marketplace Top Header -->
   <header class="marketplace-header">
     <div class="header-titles">
-      <span class="eyebrow">INGOT CATALOGUE &bull; 50 PRODUCTS</span>
-      <h1>Tech Marketplace</h1>
-      <p>Explore high-performance laptops, smartphones, audio, accessories, and gaming gear.</p>
+      <span class="eyebrow">
+        {% if collection == 'electronics' %}
+          INGOT ELECTRONICS &bull; 50 PRODUCTS
+        {% elif collection == 'ingot_originals' %}
+          INGOT ORIGINALS &bull; 20 PRODUCTS
+        {% else %}
+          INGOT MARKETPLACE &bull; {{ total_results }} PRODUCTS
+        {% endif %}
+      </span>
+      <h1>
+        {% if query %}
+          Search results for: <span class="query-highlight">"{{ query }}"</span>
+        {% elif collection == 'electronics' %}
+          Electronics &amp; Computing
+        {% elif collection == 'ingot_originals' %}
+          INGOT Originals
+        {% elif selected_category %}
+          {{ selected_category|title }}
+        {% else %}
+          Marketplace Catalogue
+        {% endif %}
+      </h1>
+      <p>Explore high-performance laptops, smartphones, audio gear, accessories, and the proprietary INGOT Originals collection.</p>
     </div>
 
     <!-- Search Bar -->
     <div class="marketplace-search-box">
       <form action="{% url 'products' %}" method="get" class="search-form">
-        <!-- Preserve existing filters when searching -->
+        {% if collection %}<input type="hidden" name="collection" value="{{ collection }}">{% endif %}
         {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
         {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
         {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
@@ -24,7 +48,7 @@
         
         <div class="input-with-icon">
           <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="search" name="search" value="{{ query }}" placeholder="Search 50 products by name, brand, or specs...">
+          <input type="search" name="search" value="{{ query }}" placeholder="Search products, brands and categories...">
           {% if query %}
             <a href="{% url 'products' %}?{% if filter_querystring %}{{ filter_querystring }}{% endif %}" class="clear-search" title="Clear search">&times;</a>
           {% endif %}
@@ -33,6 +57,19 @@
       </form>
     </div>
   </header>
+
+  <!-- Collection Switcher Tabs -->
+  <div class="collection-switcher-tabs">
+    <a href="{% url 'products' %}{% if query %}?search={{ query }}{% endif %}" class="collection-tab {% if not collection %}active{% endif %}">
+      All Products <span class="tab-badge">70</span>
+    </a>
+    <a href="{% url 'products' %}?collection=electronics{% if query %}&search={{ query }}{% endif %}" class="collection-tab {% if collection == 'electronics' %}active{% endif %}">
+      ⚡ Electronics <span class="tab-badge">50</span>
+    </a>
+    <a href="{% url 'products' %}?collection=ingot_originals{% if query %}&search={{ query }}{% endif %}" class="collection-tab {% if collection == 'ingot_originals' %}active{% endif %}">
+      ✦ INGOT Originals <span class="tab-badge">20</span>
+    </a>
+  </div>
 
   <!-- Control Toolbar -->
   <div class="marketplace-toolbar">
@@ -51,6 +88,7 @@
     <!-- Sorting Control -->
     <form method="get" class="sort-form" id="sort-form">
       {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
+      {% if collection %}<input type="hidden" name="collection" value="{{ collection }}">{% endif %}
       {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
       {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
       {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
@@ -60,19 +98,20 @@
 
       <label for="sort-select">Sort by:</label>
       <select name="sort" id="sort-select" onchange="this.form.submit()">
+        <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Featured / Relevance</option>
         <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
         <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
         <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-        <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Customer Rating</option>
         <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
       </select>
     </form>
   </div>
 
   <!-- Active Filter Chips -->
-  {% if selected_category or min_price or max_price or in_stock or deal or featured or query %}
+  {% if selected_category or min_price or max_price or in_stock or deal or featured or query or collection %}
     <div class="active-filters-bar">
       <span class="active-label">Active Filters:</span>
+      {% if collection %}<span class="filter-chip">Collection: {{ collection|title }}</span>{% endif %}
       {% if query %}<span class="filter-chip">Query: "{{ query }}"</span>{% endif %}
       {% if selected_category %}<span class="filter-chip">Category: {{ selected_category|title }}</span>{% endif %}
       {% if min_price %}<span class="filter-chip">Min: ₹{{ min_price }}</span>{% endif %}
@@ -96,6 +135,31 @@
       <form action="{% url 'products' %}" method="get" class="filter-form">
         {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
         {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+
+        <!-- Collection Filter -->
+        <div class="filter-group">
+          <h4>Collection</h4>
+          <ul class="category-filter-list">
+            <li>
+              <label class="category-radio">
+                <input type="radio" name="collection" value="" {% if not collection %}checked{% endif %} onchange="this.form.submit()">
+                <span>All Collections (70)</span>
+              </label>
+            </li>
+            <li>
+              <label class="category-radio">
+                <input type="radio" name="collection" value="electronics" {% if collection == 'electronics' %}checked{% endif %} onchange="this.form.submit()">
+                <span>⚡ Electronics (50)</span>
+              </label>
+            </li>
+            <li>
+              <label class="category-radio">
+                <input type="radio" name="collection" value="ingot_originals" {% if collection == 'ingot_originals' %}checked{% endif %} onchange="this.form.submit()">
+                <span>✦ INGOT Originals (20)</span>
+              </label>
+            </li>
+          </ul>
+        </div>
 
         <!-- Categories -->
         <div class="filter-group">
@@ -198,7 +262,7 @@
         <div class="empty-products marketplace-empty">
           <div class="empty-icon">⌕</div>
           <h3>No products match your criteria</h3>
-          <p>Try adjusting your search terms, price range, or category selection.</p>
+          <p>Try adjusting your search terms, price range, or collection filter.</p>
           <a href="{% url 'products' %}" class="button">Reset All Filters</a>
         </div>
       {% endif %}
@@ -207,7 +271,6 @@
 </div>
 
 <script>
-  // Mobile filter drawer toggle
   document.addEventListener('DOMContentLoaded', function() {
     const toggleBtn = document.getElementById('filter-toggle-btn');
     const closeBtn = document.getElementById('close-sidebar-btn');
