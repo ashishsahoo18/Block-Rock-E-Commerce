@@ -92,6 +92,11 @@ def place_order(request):
             locked_products = {
                 p.id: p for p in Product.objects.select_for_update().filter(id__in=product_ids, is_active=True)
             }
+            from products.models import ProductVariant
+            variant_ids = [item.variant_id for item in locked_items if item.variant_id]
+            locked_variants = {
+                v.id: v for v in ProductVariant.objects.select_for_update().filter(id__in=variant_ids, is_active=True)
+            } if variant_ids else {}
 
             # Server-side validation of stock and calculations
             items_payload = []
@@ -102,17 +107,27 @@ def place_order(request):
                 if not product:
                     raise ValidationError(f'Product "{item.product.name}" is no longer available.')
 
-                if item.quantity > product.stock:
-                    raise ValidationError(
-                        f'Insufficient stock for "{product.name}". Only {product.stock} units available.'
-                    )
+                variant = locked_variants.get(item.variant_id) if item.variant_id else None
+                if variant:
+                    if item.quantity > variant.stock:
+                        raise ValidationError(
+                            f'Insufficient stock for "{product.name} ({variant.display_name})". Only {variant.stock} units available.'
+                        )
+                    unit_price = variant.price_override if variant.price_override is not None else product.current_price
+                else:
+                    if item.quantity > product.stock:
+                        raise ValidationError(
+                            f'Insufficient stock for "{product.name}". Only {product.stock} units available.'
+                        )
+                    unit_price = product.current_price
 
-                unit_price = product.current_price
                 line_total = unit_price * item.quantity
                 subtotal += line_total
 
                 items_payload.append({
                     'product': product,
+                    'variant': variant,
+                    'variant_label': item.variant_label or (variant.display_name if variant else ''),
                     'product_name': product.name,
                     'price': unit_price,
                     'quantity': item.quantity,
@@ -131,21 +146,26 @@ def place_order(request):
             order.status = Order.STATUS_PENDING
             order.save()
 
-            # Create OrderItems & update product stock safely
+            # Create OrderItems & update product / variant stock safely
             order_items = []
             for payload in items_payload:
                 order_items.append(
                     OrderItem(
                         order=order,
                         product=payload['product'],
+                        variant=payload['variant'],
+                        variant_label=payload['variant_label'],
                         product_name=payload['product_name'],
                         price=payload['price'],
                         quantity=payload['quantity'],
                         line_total=payload['line_total'],
                     )
                 )
+                if payload['variant']:
+                    payload['variant'].stock -= payload['quantity']
+                    payload['variant'].save(update_fields=['stock', 'updated_at'])
                 product = payload['product']
-                product.stock -= payload['quantity']
+                product.stock = max(0, product.stock - payload['quantity'])
                 product.save(update_fields=['stock', 'updated_at'])
 
             OrderItem.objects.bulk_create(order_items)
