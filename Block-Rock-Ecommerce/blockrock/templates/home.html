@@ -2,282 +2,245 @@
 {% load static %}
 {% load currency_filters %}
 
-{% block title %}INGOT | Shop Smart. Discover More.{% endblock %}
+{% block title %}INGOT | Premium Apparel & Lifestyle Essentials{% endblock %}
 
 {% block content %}
-<!-- HERO SECTION -->
-<section class="marketplace-hero-section">
-  <div class="container hero-marketplace-grid">
-    <div class="hero-left-content">
-      <div class="hero-eyebrow-badge">
-        <span class="badge-dot"></span> NEXT-GEN MARKETPLACE
-      </div>
-      <h1 class="hero-main-title">
-        Shop Smart.<br>
-        <span class="text-gradient-cyan">Discover More.</span>
-      </h1>
-      <p class="hero-subtitle-desc">
-        Engineered electronics, flagship mobile devices, and the all-new <strong>INGOT Originals</strong> lifestyle collection. All in one unified destination.
-      </p>
-      <div class="hero-cta-group">
-        <a class="button button-hero-primary" href="{% url 'products' %}?collection=electronics">
-          <span>Shop Electronics</span> &rarr;
-        </a>
-        <a class="button button-hero-secondary" href="{% url 'ingot_originals' %}">
-          <span>Explore INGOT Originals</span> ✦
-        </a>
-      </div>
-      <div class="hero-features-strip">
-        <div class="feature-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-          <div>
-            <strong>Fast Dispatch</strong>
-            <small>Orders over ₹999</small>
+<!-- HERO BANNER SECTION (ADMIN-DRIVEN CAROUSEL) -->
+<section class="hero-carousel-section" aria-label="Hero Carousel">
+  <div class="hero-carousel" id="hero-carousel" data-autoplay="5000">
+    <div class="carousel-track" id="carousel-track">
+      {% for banner in banners %}
+        <div class="carousel-slide {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter0 }}">
+          <div class="container slide-inner">
+            <div class="slide-content">
+              {% if banner.tagline %}
+                <div class="slide-tagline">
+                  <span class="tagline-dot"></span> {{ banner.tagline }}
+                </div>
+              {% endif %}
+              <h1 class="slide-title">{{ banner.title }}</h1>
+              {% if banner.subtitle %}
+                <p class="slide-subtitle">{{ banner.subtitle }}</p>
+              {% endif %}
+              <div class="slide-cta-row">
+                <a href="{{ banner.link_url }}" class="button button-hero-primary">
+                  <span>{{ banner.button_text }}</span> &rarr;
+                </a>
+                <a href="{% url 'products' %}" class="button button-hero-secondary">
+                  <span>Browse Full Catalogue</span>
+                </a>
+              </div>
+            </div>
+            <div class="slide-visual">
+              {% if banner.image %}
+                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="slide-banner-img">
+              {% else %}
+                <div class="slide-ambient-badge">
+                  <div class="ambient-glow"></div>
+                  <div class="badge-inner">
+                    <span class="badge-title">INGOT</span>
+                    <span class="badge-sub">2026 EDITION</span>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
           </div>
         </div>
-        <div class="feature-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          <div>
-            <strong>100% Genuine</strong>
-            <small>Direct INGOT guarantee</small>
+      {% empty %}
+        <!-- Fallback slide if no banner has been added yet -->
+        <div class="carousel-slide active" data-slide-index="0">
+          <div class="container slide-inner">
+            <div class="slide-content">
+              <div class="slide-tagline"><span class="tagline-dot"></span> NEXT-GEN LIFESTYLE</div>
+              <h1 class="slide-title">ENGINEERED FOR THE MODERN ICON.</h1>
+              <p class="slide-subtitle">Precision-tailored streetwear, architectural fleece hoodies, and technical carry essentials.</p>
+              <div class="slide-cta-row">
+                <a href="{% url 'ingot_originals' %}" class="button button-hero-primary">
+                  <span>Explore INGOT Originals</span> &rarr;
+                </a>
+                <a href="{% url 'products' %}" class="button button-hero-secondary">
+                  <span>Shop Catalogue</span>
+                </a>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="feature-item">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
-          <div>
-            <strong>Cash on Delivery</strong>
-            <small>Pay at your doorstep</small>
-          </div>
-        </div>
-      </div>
+      {% endfor %}
     </div>
 
-    <!-- Hero Visual Card -->
-    <div class="hero-right-visual">
-      <div class="hero-glass-card">
-        <div class="hero-card-tag">NEW COLLECTION DROP</div>
-        <div class="hero-showcase-img-wrap">
-          <img src="{% static 'images/ingot-logo.png' %}" alt="INGOT" class="hero-logo-mark">
-          <div class="hero-ambient-glow"></div>
-        </div>
-        <div class="hero-card-caption">
-          <h3>INGOT Originals &bull; 2026 Collection</h3>
-          <p>Streetwear, heavyweight fleece hoodies, modular bags & everyday lifestyle essentials.</p>
-          <a href="{% url 'ingot_originals' %}" class="card-caption-link">Discover the drop &rarr;</a>
-        </div>
+    <!-- Manual Prev / Next Controls -->
+    <button class="carousel-ctrl-btn prev-btn" id="carousel-prev" aria-label="Previous Slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="m15 18-6-6 6-6"/></svg>
+    </button>
+    <button class="carousel-ctrl-btn next-btn" id="carousel-next" aria-label="Next Slide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+
+    <!-- Dot Indicators -->
+    <div class="carousel-dots-container" id="carousel-dots">
+      {% for banner in banners %}
+        <button class="carousel-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" aria-label="Slide {{ forloop.counter }}"></button>
+      {% empty %}
+        <button class="carousel-dot active" data-index="0" aria-label="Slide 1"></button>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- BRAND VALUES STRIP -->
+<section class="trust-strip-section">
+  <div class="container trust-strip-grid">
+    <div class="trust-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div>
+        <strong>Premium 100% Quality</strong>
+        <small>Original INGOT craftsmanship</small>
+      </div>
+    </div>
+    <div class="trust-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div>
+        <strong>Expedited Dispatch</strong>
+        <small>Fast insured shipping nationwide</small>
+      </div>
+    </div>
+    <div class="trust-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+      <div>
+        <strong>Cash on Delivery</strong>
+        <small>Pay safely upon doorstep delivery</small>
+      </div>
+    </div>
+    <div class="trust-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 14h6v6H4zM14 4h6v6h-6zM4 4h6v6H4zM14 14h6v6h-6z"/></svg>
+      <div>
+        <strong>Structured Catalogue</strong>
+        <small>DB-driven sizes, fits & variants</small>
       </div>
     </div>
   </div>
 </section>
 
-<!-- SHOP BY CATEGORY -->
-<section class="section-container container" id="categories">
+<!-- SECTION 1: FEATURED RAIL (LIVE QUERYSET) -->
+<section class="section-container container" id="featured-rail">
   <div class="section-header-row">
     <div>
-      <span class="eyebrow">BROWSE CATALOGUE</span>
-      <h2 class="section-title">Shop by Category</h2>
+      <span class="section-eyebrow">FEATURED SELECTION</span>
+      <h2 class="section-title">Editor's Choice</h2>
     </div>
-    <a href="{% url 'products' %}" class="section-view-all">View all categories &rarr;</a>
+    <a href="{% url 'products' %}?featured=1" class="section-view-all">View All Featured &rarr;</a>
   </div>
 
-  <div class="category-grid-marketplace">
-    <a class="category-tile" href="{% url 'products' %}?collection=electronics">
-      <div class="tile-icon">⚡</div>
-      <span class="tile-title">Electronics</span>
-      <small class="tile-sub">50 Products</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=smartphones">
-      <div class="tile-icon">📱</div>
-      <span class="tile-title">Mobiles</span>
-      <small class="tile-sub">Flagships & 5G</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=laptops">
-      <div class="tile-icon">💻</div>
-      <span class="tile-title">Laptops</span>
-      <small class="tile-sub">ProBooks & Ultra</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=audio">
-      <div class="tile-icon">🎧</div>
-      <span class="tile-title">Audio</span>
-      <small class="tile-sub">ANC & Studio</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=gaming">
-      <div class="tile-icon">🎮</div>
-      <span class="tile-title">Gaming</span>
-      <small class="tile-sub">Controllers & Peripherals</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=cameras">
-      <div class="tile-icon">📷</div>
-      <span class="tile-title">Cameras</span>
-      <small class="tile-sub">4K Vision & Action</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=wearables">
-      <div class="tile-icon">⌚</div>
-      <span class="tile-title">Wearables</span>
-      <small class="tile-sub">Watches & Bands</small>
-    </a>
-    <a class="category-tile" href="{% url 'products' %}?category=accessories">
-      <div class="tile-icon">🔌</div>
-      <span class="tile-title">Accessories</span>
-      <small class="tile-sub">Chargers & Cables</small>
-    </a>
-    <a class="category-tile category-tile-originals" href="{% url 'ingot_originals' %}">
-      <div class="tile-icon">✦</div>
-      <span class="tile-title">INGOT Originals</span>
-      <small class="tile-sub">Lifestyle & Apparel</small>
-    </a>
-  </div>
-</section>
-
-<!-- DEALS OF THE DAY -->
-<section class="section-container container" id="deals">
-  <div class="section-header-row">
-    <div>
-      <span class="eyebrow">LIMITED TIME OFFERS</span>
-      <h2 class="section-title">🔥 Deals of the Day</h2>
-    </div>
-    <a href="{% url 'products' %}?deal=1" class="section-view-all">All Deals &rarr;</a>
-  </div>
-
-  <div class="deals-layout-grid">
-    {% if deal_product %}
-      <aside class="featured-deal-hero profile-card">
-        <div class="deal-badge-pill">DEAL OF THE DAY</div>
-        <div class="deal-countdown">
-          <span><b>15</b>h</span><i>:</i><span><b>42</b>m</span><i>:</i><span><b>37</b>s</span>
-        </div>
-        <a class="deal-hero-image" href="{% url 'product_detail' deal_product.slug %}">
-          {% if deal_product.image %}
-            <img src="{{ deal_product.image.url }}" alt="{{ deal_product.name }}">
-          {% else %}
-            <div class="product-placeholder">⚡</div>
-          {% endif %}
-        </a>
-        <div class="deal-hero-info">
-          <span class="deal-cat">{{ deal_product.category.name }}</span>
-          <h3><a href="{% url 'product_detail' deal_product.slug %}">{{ deal_product.name }}</a></h3>
-          <div class="deal-price-bar">
-            <strong>{{ deal_product.current_price|rupee }}</strong>
-            {% if deal_product.discount_price %}
-              <del>{{ deal_product.price|rupee }}</del>
-              <span class="deal-percent-tag">-{{ deal_product.discount_percentage }}%</span>
-            {% endif %}
-          </div>
-          <p class="deal-desc">{{ deal_product.short_description|default:deal_product.description|truncatewords:15 }}</p>
-          <a class="button button-full" href="{% url 'product_detail' deal_product.slug %}">Claim Deal &rarr;</a>
-        </div>
-      </aside>
-    {% endif %}
-
-    <div class="deals-products-list">
-      <div class="product-grid">
-        {% for product in deals_of_the_day %}
-          {% include 'includes/product_card.html' %}
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- INGOT ORIGINALS SHOWCASE -->
-<section class="section-container container originals-showcase-section">
-  <div class="originals-banner-card">
-    <div class="originals-banner-copy">
-      <span class="eyebrow-cyan">INGOT ORIGINALS</span>
-      <h2>Designed by INGOT.<br>Made for Everyday Life.</h2>
-      <p>Explore our proprietary collection of minimalist organic cotton t-shirts, heavyweight hoodies, structured caps, technical commuter backpacks, and modern desk gear.</p>
-      <div class="originals-banner-buttons">
-        <a href="{% url 'ingot_originals' %}" class="button">Explore Collection &rarr;</a>
-        <a href="{% url 'products' %}?category=t-shirts" class="button button-ghost">View T-Shirts</a>
-        <a href="{% url 'products' %}?category=hoodies" class="button button-ghost">View Hoodies</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="product-grid mt-4">
-    {% for product in ingot_originals_featured %}
-      {% include 'includes/product_card.html' %}
+  <div class="product-rail-grid">
+    {% for product in featured_rail %}
+      {% include 'includes/product_card.html' with product=product %}
+    {% empty %}
+      <p class="empty-copy">No featured products currently available.</p>
     {% endfor %}
   </div>
 </section>
 
-<!-- TRENDING PRODUCTS -->
-<section class="section-container container">
+<!-- SECTION 2: SHOP T-SHIRTS (LIVE QUERYSET) -->
+{% if tshirt_rail %}
+<section class="section-container container" id="tshirts-rail">
   <div class="section-header-row">
     <div>
-      <span class="eyebrow">COMMUNITY FAVORITES</span>
-      <h2 class="section-title">Trending Across INGOT</h2>
+      <span class="section-eyebrow">STREETWEAR BASICS</span>
+      <h2 class="section-title">Shop T-Shirts</h2>
     </div>
-    <a href="{% url 'products' %}?sort=rating" class="section-view-all">View all &rarr;</a>
+    <a href="{% url 'products' %}?category=t-shirts" class="section-view-all">View All T-Shirts &rarr;</a>
   </div>
 
-  <div class="product-grid">
-    {% for product in trending_products %}
-      {% include 'includes/product_card.html' %}
+  <div class="product-rail-grid">
+    {% for product in tshirt_rail %}
+      {% include 'includes/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- SECTION 3: NEW HOODIES (LIVE QUERYSET) -->
+{% if hoodie_rail %}
+<section class="section-container container" id="hoodies-rail">
+  <div class="section-header-row">
+    <div>
+      <span class="section-eyebrow">HEAVYWEIGHT FLEECE</span>
+      <h2 class="section-title">New Hoodies & Layers</h2>
+    </div>
+    <a href="{% url 'products' %}?category=hoodies" class="section-view-all">View All Hoodies &rarr;</a>
+  </div>
+
+  <div class="product-rail-grid">
+    {% for product in hoodie_rail %}
+      {% include 'includes/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- SECTION 4: DEALS OF THE DAY (LIVE QUERYSET) -->
+{% if deal_rail %}
+<section class="section-container container" id="deals-rail">
+  <div class="section-header-row">
+    <div>
+      <span class="section-eyebrow">LIMITED TIME SPECIALS</span>
+      <h2 class="section-title">Deals of the Day</h2>
+    </div>
+    <a href="{% url 'products' %}?deal=1" class="section-view-all">View All Deals &rarr;</a>
+  </div>
+
+  <div class="product-rail-grid">
+    {% for product in deal_rail %}
+      {% include 'includes/product_card.html' with product=product %}
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- CATEGORIES EXPLORATION GRID (DB-DRIVEN) -->
+<section class="section-container container" id="categories-grid">
+  <div class="section-header-row">
+    <div>
+      <span class="section-eyebrow">EXPANDED TAXONOMY</span>
+      <h2 class="section-title">Explore Categories</h2>
+    </div>
+    <a href="{% url 'products' %}" class="section-view-all">Full Catalogue &rarr;</a>
+  </div>
+
+  <div class="categories-card-grid">
+    {% for cat in categories %}
+      <a class="category-card-tile" href="{% url 'products' %}?category={{ cat.slug }}">
+        <div class="cat-tile-badge">{% if cat.is_ingot_original %}ORIGINALS{% else %}SHOP{% endif %}</div>
+        <h3 class="cat-tile-name">{{ cat.name }}</h3>
+        <span class="cat-tile-arrow">&rarr;</span>
+      </a>
     {% endfor %}
   </div>
 </section>
 
-<!-- FEATURED ELECTRONICS -->
-<section class="section-container container">
-  <div class="section-header-row">
-    <div>
-      <span class="eyebrow">ENGINEERED PERFORMANCE</span>
-      <h2 class="section-title">Featured Electronics</h2>
+<!-- NEWSLETTER SUBSCRIPTION -->
+<section class="container">
+  <div class="newsletter-card">
+    <div class="newsletter-info">
+      <span class="section-eyebrow">STAY INFORMED</span>
+      <h2 class="newsletter-title">Subscribe to the INGOT Dispatch</h2>
+      <p class="newsletter-desc">Be the first to receive notifications on seasonal collection drops, restocks, and exclusive subscriber pricing.</p>
     </div>
-    <a href="{% url 'products' %}?collection=electronics" class="section-view-all">All Electronics (50) &rarr;</a>
+    <form class="newsletter-form" action="{% url 'newsletter_subscribe' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <div class="newsletter-input-group">
+        <input type="email" name="email" placeholder="Enter your email address" required aria-label="Email Address">
+        <button type="submit" class="button button-hero-primary">Subscribe</button>
+      </div>
+      <small class="newsletter-subtext">
+        {% if active_subscriber_count > 0 %}
+          Join {{ active_subscriber_count }}+ tech lovers staying updated.
+        {% else %}
+          Be the first to join the INGOT community.
+        {% endif %}
+      </small>
+    </form>
   </div>
-
-  <div class="product-grid">
-    {% for product in featured_electronics %}
-      {% include 'includes/product_card.html' %}
-    {% endfor %}
-  </div>
-</section>
-
-<!-- TRUST & VALUE PROPOSITION -->
-<section class="benefit-strip container">
-  <div>
-    <span>▣</span>
-    <b>Free &amp; Fast Delivery</b>
-    <small>On qualifying orders over ₹999</small>
-  </div>
-  <div>
-    <span>↺</span>
-    <b>Easy 30-Day Returns</b>
-    <small>Peace of mind guaranteed</small>
-  </div>
-  <div>
-    <span>✧</span>
-    <b>Genuine INGOT Guarantee</b>
-    <small>100% verified authentic items</small>
-  </div>
-  <div>
-    <span>💵</span>
-    <b>Cash on Delivery</b>
-    <small>Pay securely at doorstep</small>
-  </div>
-</section>
-
-<!-- NEWSLETTER SECTION -->
-<section class="newsletter container">
-  <div>
-    <p class="eyebrow">STAY IN THE LOOP</p>
-    <h2>Stay in the loop with INGOT.</h2>
-    <p>Get product drops, secret deals and marketplace releases straight to your inbox.</p>
-  </div>
-  <form action="{% url 'newsletter_subscribe' %}" method="post">
-    {% csrf_token %}
-    <label class="sr-only" for="newsletter-email">Email address</label>
-    <input id="newsletter-email" name="email" type="email" placeholder="Your email address" required>
-    <button class="button" type="submit">Subscribe &rarr;</button>
-    <small id="newsletter-message">
-      {% if active_subscriber_count %}
-        Join {{ active_subscriber_count }}+ tech lovers staying updated.
-      {% else %}
-        Be the first to join the INGOT community.
-      {% endif %}
-    </small>
-  </form>
 </section>
 {% endblock %}
