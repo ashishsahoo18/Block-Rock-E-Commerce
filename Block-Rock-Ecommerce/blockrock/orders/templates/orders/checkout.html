@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load currency_filters %}
 
 {% block title %}INGOT | Checkout{% endblock %}
 
@@ -123,10 +124,13 @@
             </div>
             <div class="checkout-item-info">
               <strong>{{ item.product.name }}</strong>
-              <small>Qty: {{ item.quantity }} × ₹{{ item.product.current_price }}</small>
+              {% if item.variant_label %}
+                <span class="checkout-variant-tag" style="display: block; font-size: 11px; color: var(--cyan); margin: 2px 0;">{{ item.variant_label }}</span>
+              {% endif %}
+              <small>Qty: {{ item.quantity }} × {{ item.unit_price|rupee }}</small>
             </div>
             <div class="checkout-item-total">
-              <strong>₹{{ item.subtotal }}</strong>
+              <strong>{{ item.subtotal|rupee }}</strong>
             </div>
           </div>
         {% endfor %}
