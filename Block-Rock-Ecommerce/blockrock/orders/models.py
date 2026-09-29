@@ -81,6 +81,8 @@ class Order(models.Model):
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey('products.Product', on_delete=models.SET_NULL, null=True, blank=True, related_name='order_items')
+    variant = models.ForeignKey('products.ProductVariant', on_delete=models.SET_NULL, null=True, blank=True, related_name='order_items')
+    variant_label = models.CharField(max_length=120, blank=True)
     product_name = models.CharField(max_length=200)
     price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])
     quantity = models.PositiveIntegerField(default=1)
@@ -95,4 +97,5 @@ class OrderItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f'{self.quantity} x {self.product_name} ({self.order.order_number})'
+        lbl = f" [{self.variant_label}]" if self.variant_label else ""
+        return f'{self.quantity} x {self.product_name}{lbl} ({self.order.order_number})'
