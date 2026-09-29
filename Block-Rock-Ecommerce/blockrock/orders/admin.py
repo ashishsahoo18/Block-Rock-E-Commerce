@@ -5,7 +5,8 @@ from .models import Order, OrderItem
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
-    readonly_fields = ('product', 'product_name', 'price', 'quantity', 'line_total')
+    fields = ('product', 'variant_label', 'product_name', 'price', 'quantity', 'line_total')
+    readonly_fields = ('product', 'variant_label', 'product_name', 'price', 'quantity', 'line_total')
     can_delete = False
 
 
@@ -33,6 +34,6 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ('order', 'product_name', 'price', 'quantity', 'line_total')
-    search_fields = ('order__order_number', 'product_name')
-    readonly_fields = ('order', 'product', 'product_name', 'price', 'quantity', 'line_total')
+    list_display = ('order', 'product_name', 'variant_label', 'price', 'quantity', 'line_total')
+    search_fields = ('order__order_number', 'product_name', 'variant_label')
+    readonly_fields = ('order', 'product', 'variant', 'variant_label', 'product_name', 'price', 'quantity', 'line_total')
