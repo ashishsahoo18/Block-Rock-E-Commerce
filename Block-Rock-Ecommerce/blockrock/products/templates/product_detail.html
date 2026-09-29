@@ -5,294 +5,530 @@
 {% block title %}INGOT | {{ product.name }}{% endblock %}
 
 {% block content %}
-<div class="product-detail-page container">
-  <!-- Breadcrumb -->
+<div class="container pdp-wrapper">
+  <!-- BREADCRUMB -->
   <nav class="breadcrumb-nav" aria-label="Breadcrumb">
-    <a href="{% url 'home' %}">Home</a> &rsaquo;
-    <a href="{% url 'products' %}">Shop</a> &rsaquo;
-    {% if product.is_ingot_original %}
-      <a href="{% url 'ingot_originals' %}">INGOT Originals</a> &rsaquo;
-    {% else %}
-      <a href="{% url 'products' %}?collection=electronics">Electronics</a> &rsaquo;
-    {% endif %}
-    <a href="{% url 'products' %}?category={{ product.category.slug }}">{{ product.category.name }}</a> &rsaquo;
-    <span class="active-crumb">{{ product.name }}</span>
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item"><a href="{% url 'products' %}">Catalogue</a></li>
+      <li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'products' %}?category={{ product.category.slug }}">{{ product.category.name }}</a>
+      </li>
+      <li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+    </ol>
   </nav>
 
-  <!-- Product Showcase Grid -->
-  <div class="product-showcase-grid">
-    <!-- Left Column: Large Product Image -->
-    <div class="detail-gallery">
-      <div class="main-image-container">
-        {% if product.image %}
-          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="detail-main-img">
-        {% else %}
-          <div class="detail-placeholder-box category-placeholder category-{{ product.category.slug }}">
-            {% if product.category.name == 'Laptops' %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>
-            {% elif product.category.name == 'Smartphones' %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg>
-            {% elif product.category.name == 'Audio' %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
-            {% elif product.category.name == 'Wearables' %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><circle cx="12" cy="12" r="6"/><path d="M12 2v4M12 18v4"/></svg>
-            {% elif product.category.name == 'Cameras' %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-            {% elif product.category.name == 'Gaming' %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><rect x="2" y="6" width="20" height="12" rx="4"/><path d="M6 12h4M8 10v4"/><circle cx="17" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="13" r="1" fill="currentColor"/></svg>
-            {% else %}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="120" height="120"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+  <!-- TWO-COLUMN PDP GRID (60/40 Desktop) -->
+  <div class="pdp-layout-grid">
+    <!-- LEFT: GALLERY COMPONENT -->
+    <section class="pdp-gallery-column" aria-label="Product Gallery">
+      <div class="pdp-gallery-sticky">
+        <!-- Main Image Stage with Loupe Magnifier -->
+        <div class="gallery-main-stage" id="gallery-main-stage">
+          <!-- Floating Badges -->
+          <div class="pdp-floating-badges">
+            {% if product.is_ingot_original %}
+              <span class="badge originals-badge">ORIGINALS</span>
             {% endif %}
-            <span class="placeholder-caption">{{ product.category.name }}</span>
+            {% if product.is_deal %}
+              <span class="badge deal-badge">DEAL</span>
+            {% endif %}
+            {% if product.discount_percentage %}
+              <span class="badge discount-badge">-{{ product.discount_percentage }}%</span>
+            {% endif %}
           </div>
-        {% endif %}
 
-        <div class="detail-floating-badges">
-          {% if product.is_ingot_original %}
-            <span class="badge originals-badge">INGOT ORIGINALS</span>
-          {% endif %}
-          {% if product.is_deal %}
-            <span class="badge deal-badge">DEAL</span>
-          {% endif %}
-          {% if product.discount_percentage %}
-            <span class="badge discount-badge">-{{ product.discount_percentage }}%</span>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Right Column: Product Info & Actions -->
-    <div class="detail-content">
-      <div class="detail-header-meta">
-        <span class="product-brand-tag">{{ product.brand|default:'INGOT' }}</span>
-        <span class="meta-dot">&bull;</span>
-        <span class="product-cat-tag">{{ product.category.name }}</span>
-        {% if product.is_ingot_original %}
-          <span class="meta-dot">&bull;</span>
-          <span class="collection-highlight-tag">Collection: <strong>INGOT Originals</strong></span>
-        {% else %}
-          <span class="meta-dot">&bull;</span>
-          <span class="collection-highlight-tag">Collection: <strong>Electronics</strong></span>
-        {% endif %}
-      </div>
-
-      <h1 class="detail-product-name">{{ product.name }}</h1>
-
-      {% if product.short_description %}
-        <p class="detail-short-desc">{{ product.short_description }}</p>
-      {% endif %}
-
-      {% if product.rating and product.review_count %}
-        <div class="detail-rating-row">
-          <span class="rating-badge">★ {{ product.rating|floatformat:1 }}</span>
-          <span class="review-text">{{ product.review_count }} verified buyer rating{{ product.review_count|pluralize }}</span>
-        </div>
-      {% endif %}
-
-      <!-- Price Section -->
-      <div class="detail-price-box">
-        <div class="price-main-display">
-          <span class="price-value">{{ product.current_price|rupee }}</span>
-          {% if product.discount_price %}
-            <del class="price-mrp">{{ product.price|rupee }}</del>
-            <span class="discount-save-tag">Save {{ product.discount_percentage }}%</span>
-          {% endif %}
-        </div>
-        <small class="tax-inclusive-note">Inclusive of all taxes &bull; Cash on Delivery available</small>
-      </div>
-
-      <!-- Stock & Availability Indicator -->
-      <div class="detail-stock-row">
-        {% if product.in_stock %}
-          <div class="stock-indicator in-stock">
-            <span class="stock-pulse"></span>
-            <strong>In Stock</strong>
-            <span class="stock-units">— {{ product.stock }} units available ready to ship</span>
-          </div>
-        {% else %}
-          <div class="stock-indicator out-stock">
-            <span class="stock-pulse-red"></span>
-            <strong>Currently Out of Stock</strong>
-          </div>
-        {% endif %}
-      </div>
-
-      <!-- Purchase Actions (Quantity, Add to Cart, Buy Now, Wishlist) -->
-      <div class="detail-actions-panel">
-        {% if user.is_authenticated %}
-          <form method="post" action="{% url 'add_to_cart' product.slug %}" class="detail-cart-form">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            
-            <div class="qty-selector-group">
-              <label for="quantity-input">Quantity:</label>
-              <div class="quantity-picker-ui">
-                <button type="button" class="qty-btn" onclick="decreaseQty()" aria-label="Decrease quantity">−</button>
-                <input id="quantity-input" name="quantity" value="1" min="1" max="{{ product.stock }}" type="number" readonly>
-                <button type="button" class="qty-btn" onclick="increaseQty({{ product.stock }})" aria-label="Increase quantity">+</button>
+          <!-- Main Image Link (Click opens Fullscreen Lightbox) -->
+          <div class="main-image-viewport" id="main-image-viewport" title="Click to view fullscreen lightbox">
+            {% if gallery_images %}
+              <img
+                src="{{ gallery_images.0.image.url }}"
+                alt="{{ gallery_images.0.alt_text|default:product.name }}"
+                id="main-display-image"
+                class="main-display-image"
+                data-zoom="{{ gallery_images.0.image.url }}"
+              >
+            {% elif product.image %}
+              <img
+                src="{{ product.image.url }}"
+                alt="{{ product.name }}"
+                id="main-display-image"
+                class="main-display-image"
+                data-zoom="{{ product.image.url }}"
+              >
+            {% else %}
+              <div class="pdp-no-image-placeholder">
+                <span class="placeholder-logo">INGOT</span>
+                <span>{{ product.category.name }}</span>
               </div>
-            </div>
+            {% endif %}
 
-            <div class="detail-button-row">
-              <button class="button button-cart-primary" {% if not product.in_stock %}disabled{% endif %} type="submit">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
-                <span>Add to Cart</span>
+            <!-- Desktop Circular Loupe / Magnifier Lens -->
+            <div class="pdp-magnifier-lens" id="pdp-magnifier-lens"></div>
+          </div>
+
+          <!-- Gallery Navigation Arrows (if multiple images) -->
+          {% if gallery_images|length > 1 %}
+            <button class="gallery-nav-arrow prev-arrow" id="gallery-prev-arrow" type="button" aria-label="Previous Image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m15 18-6-6 6-6"/></svg>
+            </button>
+            <button class="gallery-nav-arrow next-arrow" id="gallery-next-arrow" type="button" aria-label="Next Image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          {% endif %}
+
+          <div class="zoom-hint-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            <span>Hover to magnify &bull; Click for fullscreen</span>
+          </div>
+        </div>
+
+        <!-- Desktop Thumbnail Rail -->
+        {% if gallery_images|length > 1 %}
+          <div class="gallery-thumbnail-rail" id="gallery-thumbnail-rail">
+            {% for img_obj in gallery_images %}
+              <button
+                type="button"
+                class="gallery-thumb-btn {% if forloop.first %}active{% endif %}"
+                data-index="{{ forloop.counter0 }}"
+                data-src="{{ img_obj.image.url }}"
+                data-alt="{{ img_obj.alt_text|default:product.name }}"
+                aria-label="View Image {{ forloop.counter }}"
+              >
+                <img src="{{ img_obj.image.url }}" alt="{{ img_obj.alt_text|default:product.name }}">
               </button>
-            </div>
-          </form>
+            {% endfor %}
+          </div>
+        {% endif %}
 
-          <!-- Buy Now Form (Adds to cart & redirects directly to checkout) -->
-          <form method="post" action="{% url 'add_to_cart' product.slug %}" class="buy-now-form">
-            {% csrf_token %}
-            <input type="hidden" name="quantity" id="buy-now-qty" value="1">
-            <input type="hidden" name="next" value="{% url 'checkout' %}">
-            <button class="button button-buy-now" {% if not product.in_stock %}disabled{% endif %} type="submit">
-              <span>⚡ Buy Now</span>
-            </button>
-          </form>
-
-          <form method="post" action="{% url 'add_to_wishlist' product.slug %}" class="detail-wishlist-form">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <button class="button button-ghost button-wishlist-toggle {% if product.id in wishlist_product_ids %}saved{% endif %}" type="submit">
-              <span>{% if product.id in wishlist_product_ids %}♥ Saved in Wishlist{% else %}♡ Save to Wishlist{% endif %}</span>
-            </button>
-          </form>
-        {% else %}
-          <div class="auth-required-cta">
-            <a class="button button-full" href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}">Sign in to Buy &amp; Add to Cart</a>
+        <!-- Mobile Carousel Dots -->
+        {% if gallery_images|length > 1 %}
+          <div class="mobile-gallery-dots" id="mobile-gallery-dots">
+            {% for img_obj in gallery_images %}
+              <span class="mobile-dot {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}"></span>
+            {% endfor %}
           </div>
         {% endif %}
       </div>
+    </section>
 
-      <!-- Trust & Delivery Per-Product Guarantees -->
-      <div class="delivery-guarantee-card">
-        <div class="guarantee-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-          <div>
-            <strong>Fast Doorstep Delivery</strong>
-            <small>Dispatch in 24-48 hours. Free shipping on orders over ₹999.</small>
-          </div>
+    <!-- RIGHT: BUY BOX & PRODUCT DETAILS -->
+    <section class="pdp-buybox-column" aria-label="Purchase Options">
+      <div class="buybox-header">
+        <div class="buybox-brand-row">
+          <span class="buybox-brand">{{ product.brand|default:'INGOT' }}</span>
+          <span class="brand-sep">&bull;</span>
+          <span class="buybox-category">{{ product.category.name }}</span>
+          
+          <!-- Share Action (Web Share API) -->
+          <button type="button" class="buybox-share-btn" id="buybox-share-btn" title="Share this product" aria-label="Share">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span>Share</span>
+          </button>
         </div>
-        <div class="guarantee-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-          <div>
-            <strong>100% Genuine INGOT Product</strong>
-            <small>Verified authentic design and direct quality inspection.</small>
+
+        <h1 class="buybox-title">{{ product.name }}</h1>
+
+        {% if product.short_description %}
+          <p class="buybox-short-desc">{{ product.short_description }}</p>
+        {% endif %}
+
+        <!-- PRICE BLOCK -->
+        <div class="buybox-price-block">
+          <div class="price-figures">
+            <span class="current-price-val" id="displayed-price">{{ product.current_price|rupee }}</span>
+            {% if product.mrp %}
+              <del class="mrp-strikethrough" id="displayed-mrp">{{ product.mrp|rupee }}</del>
+            {% elif product.discount_price and product.price > product.discount_price %}
+              <del class="mrp-strikethrough" id="displayed-mrp">{{ product.price|rupee }}</del>
+            {% endif %}
           </div>
-        </div>
-        <div class="guarantee-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
-          <div>
-            <strong>30-Day Hassle-Free Returns</strong>
-            <small>Easy exchange or return if not completely satisfied.</small>
-          </div>
-        </div>
-        <div class="guarantee-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect width="20" height="14" x="2" y="5" rx="2"></rect><line x1="2" x2="22" y1="10" y2="10"></line></svg>
-          <div>
-            <strong>Cash on Delivery Eligible</strong>
-            <small>Pay with cash or card upon delivery.</small>
-          </div>
+          {% if product.you_save_amount and product.you_save_amount > 0 %}
+            <div class="savings-pill" id="savings-badge">
+              You Save {{ product.you_save_amount|rupee }} ({{ product.discount_percentage }}% OFF)
+            </div>
+          {% elif product.discount_price and product.price > product.discount_price %}
+            <div class="savings-pill" id="savings-badge">
+              You Save {{ product.discount_percentage }}% OFF
+            </div>
+          {% endif %}
+          <small class="tax-shipping-note">Inclusive of all taxes &bull; Insured Delivery Available</small>
         </div>
       </div>
-    </div>
+
+      <div class="buybox-divider"></div>
+
+      <!-- PURCHASE FORM -->
+      <form
+        method="post"
+        action="{% url 'add_to_cart' product.slug %}"
+        class="buybox-form"
+        id="buybox-purchase-form"
+      >
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+        <input type="hidden" name="variant_id" id="selected-variant-id" value="">
+
+        <!-- SELECT COLOR (SWATCH CHIPS) -->
+        {% if product.available_colors %}
+          <div class="buybox-selector-section" id="color-selector-section">
+            <div class="selector-header">
+              <label class="selector-label">
+                SELECT COLOR: <strong class="selection-value" id="selected-color-label">Choose color</strong>
+              </label>
+            </div>
+            <div class="color-swatch-chips" role="radiogroup" aria-label="Product Colors">
+              {% for col in product.available_colors %}
+                <button
+                  type="button"
+                  class="color-swatch-chip"
+                  data-color="{{ col.name }}"
+                  data-hex="{{ col.hex }}"
+                  title="{{ col.name }}"
+                  aria-label="{{ col.name }}"
+                >
+                  <span class="swatch-color-circle" style="background-color: {{ col.hex|default:'#000' }};"></span>
+                  <span class="swatch-name">{{ col.name }}</span>
+                </button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="color" id="selected-color-input" value="">
+            <div class="selector-error-msg" id="color-error-msg"></div>
+          </div>
+        {% endif %}
+
+        <!-- SELECT SIZE (PILL BUTTONS) -->
+        {% if product.available_sizes %}
+          <div class="buybox-selector-section" id="size-selector-section">
+            <div class="selector-header">
+              <label class="selector-label">
+                SELECT SIZE: <strong class="selection-value" id="selected-size-label">Choose size</strong>
+              </label>
+              {% if size_chart %}
+                <button type="button" class="size-chart-link-btn" id="open-size-chart-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 6H3"/><path d="M7 12H3"/><path d="M11 18H3"/><path d="M21 18h-4"/><path d="M21 12h-8"/></svg>
+                  <span>SIZE CHART</span>
+                </button>
+              {% endif %}
+            </div>
+            <div class="size-pills-row" role="radiogroup" aria-label="Product Sizes">
+              {% for sz in product.available_sizes %}
+                <button
+                  type="button"
+                  class="size-pill-btn"
+                  data-size="{{ sz }}"
+                  aria-label="Size {{ sz }}"
+                >
+                  {{ sz }}
+                </button>
+              {% endfor %}
+            </div>
+            <input type="hidden" name="size" id="selected-size-input" value="">
+            <div class="selector-error-msg" id="size-error-msg"></div>
+          </div>
+        {% endif %}
+
+        <!-- QUANTITY STEPPER & LIVE STOCK INDICATION -->
+        <div class="buybox-quantity-stock-row">
+          <div class="quantity-block">
+            <label for="pdp-quantity-input" class="quantity-label">QUANTITY:</label>
+            <div class="quantity-stepper" id="quantity-stepper">
+              <button type="button" class="stepper-btn minus" id="stepper-minus" aria-label="Decrease quantity">&minus;</button>
+              <input
+                type="number"
+                name="quantity"
+                id="pdp-quantity-input"
+                class="stepper-input"
+                value="1"
+                min="1"
+                max="{{ product.stock }}"
+                readonly
+              >
+              <button type="button" class="stepper-btn plus" id="stepper-plus" aria-label="Increase quantity">&plus;</button>
+            </div>
+          </div>
+
+          <!-- Live Stock Indication Badge -->
+          <div class="live-stock-indicator" id="live-stock-indicator">
+            {% if product.in_stock %}
+              {% if product.stock <= 5 and product.stock > 0 %}
+                <span class="stock-badge low-stock">
+                  <span class="pulse-dot"></span> Only {{ product.stock }} left in stock!
+                </span>
+              {% else %}
+                <span class="stock-badge in-stock">
+                  <span class="check-dot">&#10003;</span> In Stock &bull; Ready to dispatch
+                </span>
+              {% endif %}
+            {% else %}
+              <span class="stock-badge out-stock">
+                &times; Currently Out of Stock
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- PRIMARY & SECONDARY ACTION CTAS -->
+        <div class="buybox-actions-group">
+          <!-- Primary CTA: Add to Cart -->
+          <button
+            type="submit"
+            name="action"
+            value="add_to_cart"
+            class="button button-pdp-primary"
+            id="pdp-add-to-cart-btn"
+            {% if not product.in_stock %}disabled{% endif %}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+            <span>{% if product.in_stock %}ADD TO CART{% else %}OUT OF STOCK{% endif %}</span>
+          </button>
+
+          <!-- Secondary CTA: Buy Now (Routes into existing checkout) -->
+          <button
+            type="submit"
+            name="action"
+            value="buy_now"
+            class="button button-pdp-secondary"
+            id="pdp-buy-now-btn"
+            {% if not product.in_stock %}disabled{% endif %}
+          >
+            <span>BUY NOW</span> &rarr;
+          </button>
+
+          <!-- Wishlist Toggle Button -->
+          {% if user.is_authenticated %}
+            <button
+              type="button"
+              class="button button-pdp-wishlist {% if product.id in wishlist_product_ids %}saved{% endif %}"
+              id="pdp-wishlist-toggle-btn"
+              data-slug="{{ product.slug }}"
+              title="Save to Wishlist"
+              aria-label="Save to Wishlist"
+            >
+              <svg viewBox="0 0 24 24" fill="{% if product.id in wishlist_product_ids %}currentColor{% else %}none{% endif %}" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+              <span class="wishlist-btn-text">{% if product.id in wishlist_product_ids %}In Wishlist{% else %}Add to Wishlist{% endif %}</span>
+            </button>
+          {% else %}
+            <a
+              href="{% url 'login' %}?next={{ request.get_full_path|urlencode }}"
+              class="button button-pdp-wishlist"
+              title="Sign in to save to wishlist"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+              </svg>
+              <span>Add to Wishlist</span>
+            </a>
+          {% endif %}
+        </div>
+      </form>
+
+      <!-- PRODUCT DESCRIPTION ACCORDION / EXPANDABLE SECTIONS -->
+      <div class="pdp-accordion-group">
+        <details class="pdp-details-item" open>
+          <summary class="details-summary">
+            <span>Product Specifications &amp; Overview</span>
+            <span class="details-arrow">&rsaquo;</span>
+          </summary>
+          <div class="details-body">
+            <p>{{ product.description|linebreaksbr }}</p>
+          </div>
+        </details>
+
+        <details class="pdp-details-item">
+          <summary class="details-summary">
+            <span>Delivery &amp; Insured Shipping</span>
+            <span class="details-arrow">&rsaquo;</span>
+          </summary>
+          <div class="details-body">
+            <p><strong>[Store Policy &bull; Dispatch Notice]</strong></p>
+            <p>Standard delivery dispatch is processed within 24–48 hours of order confirmation. Insured doorstep tracking provided with every shipment. Free shipping applies automatically to eligible cart totals.</p>
+          </div>
+        </details>
+
+        <details class="pdp-details-item">
+          <summary class="details-summary">
+            <span>Returns &amp; Exchange Information</span>
+            <span class="details-arrow">&rsaquo;</span>
+          </summary>
+          <div class="details-body">
+            <p><strong>[Store Policy &bull; Returns Notice]</strong></p>
+            <p>Items in original, unworn condition with tags intact are eligible for hassle-free size exchange or store return. Please initiate returns through your user account dashboard.</p>
+          </div>
+        </details>
+      </div>
+    </section>
   </div>
 
-  <!-- Product Full Description & Specifications Tab -->
-  <section class="detail-specifications-section">
-    <div class="spec-tabs">
-      <span class="spec-tab active">Product Description &amp; Details</span>
-    </div>
-    <div class="spec-content profile-card">
-      <h3>About this item</h3>
-      <p class="description-body">{{ product.description }}</p>
-
-      {% if product.is_ingot_original %}
-        <div class="lifestyle-specs-grid">
-          <div class="spec-item">
-            <span class="spec-label">Collection</span>
-            <span class="spec-val">INGOT Originals</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Category</span>
-            <span class="spec-val">{{ product.category.name }}</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Brand</span>
-            <span class="spec-val">INGOT</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Care Instructions</span>
-            <span class="spec-val">Machine wash cold inside out, tumble dry low or air dry.</span>
-          </div>
-        </div>
-      {% else %}
-        <div class="lifestyle-specs-grid">
-          <div class="spec-item">
-            <span class="spec-label">Brand</span>
-            <span class="spec-val">INGOT</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Category</span>
-            <span class="spec-val">{{ product.category.name }}</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Warranty</span>
-            <span class="spec-val">1 Year Official INGOT Manufacturer Warranty</span>
-          </div>
-          <div class="spec-item">
-            <span class="spec-label">Package Contents</span>
-            <span class="spec-val">1 × {{ product.name }}, User Documentation, Warranty Card.</span>
-          </div>
-        </div>
-      {% endif %}
-    </div>
-  </section>
-
-  <!-- Related Products Section -->
+  <!-- RELATED PRODUCTS SECTION (LIVE REAL QUERYSET) -->
   {% if related_products %}
-    <section class="related-products-section">
+    <section class="section-container pdp-related-section" id="related-products-section">
       <div class="section-header-row">
         <div>
-          <span class="eyebrow">EXPLORE MORE</span>
-          <h2 class="section-title">Similar Products You Might Like</h2>
+          <span class="section-eyebrow">COMPLETE THE LOOK</span>
+          <h2 class="section-title">Related Products</h2>
         </div>
-        <a href="{% url 'products' %}?category={{ product.category.slug }}" class="section-view-all">
-          View more in {{ product.category.name }} &rarr;
-        </a>
+        <a href="{% url 'products' %}?category={{ product.category.slug }}" class="section-view-all">View {{ product.category.name }} &rarr;</a>
       </div>
-
-      <div class="product-grid">
-        {% for rel in related_products %}
-          {% include 'includes/product_card.html' with product=rel %}
+      <div class="product-rail-grid">
+        {% for rel_prod in related_products %}
+          {% include 'includes/product_card.html' with product=rel_prod %}
         {% endfor %}
       </div>
     </section>
   {% endif %}
 </div>
 
-<script>
-  function increaseQty(maxStock) {
-    const input = document.getElementById('quantity-input');
-    const buyNowQty = document.getElementById('buy-now-qty');
-    let val = parseInt(input.value) || 1;
-    if (val < maxStock) {
-      val += 1;
-      input.value = val;
-      if (buyNowQty) buyNowQty.value = val;
-    }
-  }
+<!-- STICKY MOBILE ADD-TO-CART BAR (Appears when primary CTA scrolls out of view) -->
+<aside class="sticky-mobile-cart-bar" id="sticky-mobile-cart-bar" aria-hidden="true">
+  <div class="sticky-cart-inner">
+    <div class="sticky-item-meta">
+      <span class="sticky-title">{{ product.name }}</span>
+      <span class="sticky-price">{{ product.current_price|rupee }}</span>
+    </div>
+    <button type="button" class="button button-cyan sticky-cta-btn" id="sticky-cart-trigger" {% if not product.in_stock %}disabled{% endif %}>
+      {% if product.in_stock %}ADD TO CART{% else %}OUT OF STOCK{% endif %}
+    </button>
+  </div>
+</aside>
 
-  function decreaseQty() {
-    const input = document.getElementById('quantity-input');
-    const buyNowQty = document.getElementById('buy-now-qty');
-    let val = parseInt(input.value) || 1;
-    if (val > 1) {
-      val -= 1;
-      input.value = val;
-      if (buyNowQty) buyNowQty.value = val;
-    }
-  }
+<!-- FULLSCREEN LIGHTBOX / FILMSTRIP MODAL -->
+<div class="fullscreen-lightbox-modal" id="fullscreen-lightbox-modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="lightbox-overlay" id="lightbox-backdrop"></div>
+  <div class="lightbox-dialog">
+    <button type="button" class="lightbox-close-btn" id="lightbox-close-btn" aria-label="Close Lightbox">&times;</button>
+    <div class="lightbox-viewport">
+      <img src="" alt="" id="lightbox-active-img" class="lightbox-active-img">
+    </div>
+    {% if gallery_images|length > 1 %}
+      <button type="button" class="lightbox-nav-btn prev" id="lightbox-prev-btn" aria-label="Previous image">&larr;</button>
+      <button type="button" class="lightbox-nav-btn next" id="lightbox-next-btn" aria-label="Next image">&rarr;</button>
+      <div class="lightbox-filmstrip-strip" id="lightbox-filmstrip">
+        {% for img_obj in gallery_images %}
+          <button type="button" class="filmstrip-thumb {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}" data-src="{{ img_obj.image.url }}">
+            <img src="{{ img_obj.image.url }}" alt="{{ img_obj.alt_text|default:product.name }}">
+          </button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- SIZE CHART MODAL WITH CM / INCH TOGGLE -->
+{% if size_chart %}
+  <div class="size-chart-modal" id="size-chart-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-overlay" id="size-chart-backdrop"></div>
+    <div class="modal-container">
+      <div class="modal-header">
+        <div>
+          <span class="section-eyebrow">FIT &amp; MEASUREMENTS</span>
+          <h3 class="modal-title">{{ size_chart.name }}</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="size-chart-close-btn" aria-label="Close Size Chart">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        {% if size_chart.description %}
+          <p class="size-chart-desc">{{ size_chart.description }}</p>
+        {% endif %}
+
+        <!-- CM / INCH Toggle Controls -->
+        <div class="unit-toggle-row">
+          <span class="unit-label">MEASUREMENT UNIT:</span>
+          <div class="unit-toggle-group">
+            <button type="button" class="unit-toggle-btn active" data-unit="cm">CENTIMETERS (CM)</button>
+            <button type="button" class="unit-toggle-btn" data-unit="in">INCHES (IN)</button>
+          </div>
+        </div>
+
+        <!-- Size Table Container (Populated from chart_data) -->
+        <div class="size-table-wrapper">
+          <table class="size-table" id="size-table-cm">
+            <thead>
+              <tr>
+                {% for col in size_chart.chart_data.columns %}
+                  <th>{{ col }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in size_chart.chart_data.rows_cm %}
+                <tr>
+                  <td><strong>{{ row.size }}</strong></td>
+                  <td>{{ row.chest }}</td>
+                  <td>{{ row.length }}</td>
+                  <td>{{ row.shoulder }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4">Standard fit measurements applicable.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+
+          <table class="size-table" id="size-table-in" style="display: none;">
+            <thead>
+              <tr>
+                {% for col in size_chart.chart_data.columns %}
+                  <th>{{ col }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in size_chart.chart_data.rows_in %}
+                <tr>
+                  <td><strong>{{ row.size }}</strong></td>
+                  <td>{{ row.chest }}</td>
+                  <td>{{ row.length }}</td>
+                  <td>{{ row.shoulder }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4">Standard fit measurements applicable.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<!-- Variant Data for JS logic -->
+<script id="product-variants-json" type="application/json">
+[
+  {% for v in product.variants.all %}
+    {
+      "id": {{ v.id }},
+      "size": "{{ v.size|escapejs }}",
+      "color_name": "{{ v.color_name|escapejs }}",
+      "color_hex": "{{ v.color_hex|escapejs }}",
+      "stock": {{ v.stock }},
+      "price": {% if v.price_override %}"{{ v.price_override|rupee }}"{% else %}null{% endif %},
+      "in_stock": {% if v.in_stock %}true{% else %}false{% endif %}
+    }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+]
+</script>
+
+<script id="gallery-images-json" type="application/json">
+[
+  {% for img_obj in gallery_images %}
+    {
+      "src": "{{ img_obj.image.url }}",
+      "alt": "{{ img_obj.alt_text|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+  {% empty %}
+    {% if product.image %}
+      {
+        "src": "{{ product.image.url }}",
+        "alt": "{{ product.name|escapejs }}"
+      }
+    {% endif %}
+  {% endfor %}
+]
 </script>
 {% endblock %}
