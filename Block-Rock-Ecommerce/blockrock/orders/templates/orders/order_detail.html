@@ -43,6 +43,9 @@
                   {{ item.product_name }}
                 {% endif %}
               </h3>
+              {% if item.variant_label %}
+                <span class="order-variant-tag" style="display: block; font-size: 11px; color: var(--cyan); margin: 2px 0;">{{ item.variant_label }}</span>
+              {% endif %}
               <p class="unit-price">Price snapshot: ₹{{ item.price }}</p>
             </div>
             <div class="order-item-qty">
