@@ -2,291 +2,276 @@
 {% load static %}
 {% load currency_filters %}
 
-{% block title %}INGOT | {% if query %}Search: {{ query }}{% elif collection == 'electronics' %}Electronics{% elif collection == 'ingot_originals' %}INGOT Originals{% elif selected_category %}{{ selected_category|title }}{% else %}Marketplace{% endif %}{% endblock %}
+{% block title %}INGOT | {% if query %}Search: {{ query }}{% elif selected_category %}{{ selected_category|title }}{% else %}Catalogue{% endif %}{% endblock %}
 
 {% block content %}
-<div class="marketplace-wrapper container">
-  <!-- Marketplace Top Header -->
-  <header class="marketplace-header">
-    <div class="header-titles">
-      <span class="eyebrow">
-        {% if collection == 'electronics' %}
-          INGOT ELECTRONICS &bull; 50 PRODUCTS
-        {% elif collection == 'ingot_originals' %}
-          INGOT ORIGINALS &bull; 20 PRODUCTS
-        {% else %}
-          INGOT MARKETPLACE &bull; {{ total_results }} PRODUCTS
-        {% endif %}
-      </span>
-      <h1>
+<div class="container listing-page-wrapper">
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb-nav" aria-label="Breadcrumb">
+    <ol class="breadcrumb-list">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+      <li class="breadcrumb-separator">/</li>
+      <li class="breadcrumb-item"><a href="{% url 'products' %}">Catalogue</a></li>
+      {% if collection == 'ingot_originals' %}
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item"><a href="{% url 'ingot_originals' %}">INGOT Originals</a></li>
+      {% endif %}
+      {% if selected_category %}
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item active" aria-current="page">{{ selected_category|title }}</li>
+      {% elif query %}
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item active" aria-current="page">Search: "{{ query }}"</li>
+      {% else %}
+        <li class="breadcrumb-separator">/</li>
+        <li class="breadcrumb-item active" aria-current="page">All Products</li>
+      {% endif %}
+    </ol>
+  </nav>
+
+  <!-- LISTING HEADER & SEARCH BAR -->
+  <div class="listing-header-row">
+    <div>
+      <h1 class="listing-title">
         {% if query %}
-          Search results for: <span class="query-highlight">"{{ query }}"</span>
-        {% elif collection == 'electronics' %}
-          Electronics &amp; Computing
-        {% elif collection == 'ingot_originals' %}
-          INGOT Originals
+          Results for <span class="cyan-text">"{{ query }}"</span>
         {% elif selected_category %}
           {{ selected_category|title }}
+        {% elif collection == 'ingot_originals' %}
+          INGOT Originals
         {% else %}
-          Marketplace Catalogue
+          All Products
         {% endif %}
       </h1>
-      <p>Explore high-performance laptops, smartphones, audio gear, accessories, and the proprietary INGOT Originals collection.</p>
+      <p class="listing-subtitle">
+        Showing <strong>{{ total_results }}</strong> item{{ total_results|pluralize }} in catalogue
+        {% if page_obj.paginator.num_pages > 1 %}
+          &bull; Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        {% endif %}
+      </p>
     </div>
 
-    <!-- Search Bar -->
-    <div class="marketplace-search-box">
-      <form action="{% url 'products' %}" method="get" class="search-form">
-        {% if collection %}<input type="hidden" name="collection" value="{{ collection }}">{% endif %}
-        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
-        {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
-        {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
-        {% if in_stock %}<input type="hidden" name="in_stock" value="1">{% endif %}
-        {% if deal %}<input type="hidden" name="deal" value="1">{% endif %}
-        {% if featured %}<input type="hidden" name="featured" value="1">{% endif %}
-        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-        
-        <div class="input-with-icon">
-          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-          <input type="search" name="search" value="{{ query }}" placeholder="Search products, brands and categories...">
-          {% if query %}
-            <a href="{% url 'products' %}?{% if filter_querystring %}{{ filter_querystring }}{% endif %}" class="clear-search" title="Clear search">&times;</a>
-          {% endif %}
-        </div>
-        <button type="submit" class="button">Search</button>
-      </form>
-    </div>
-  </header>
-
-  <!-- Collection Switcher Tabs -->
-  <div class="collection-switcher-tabs">
-    <a href="{% url 'products' %}{% if query %}?search={{ query }}{% endif %}" class="collection-tab {% if not collection %}active{% endif %}">
-      All Products <span class="tab-badge">70</span>
-    </a>
-    <a href="{% url 'products' %}?collection=electronics{% if query %}&search={{ query }}{% endif %}" class="collection-tab {% if collection == 'electronics' %}active{% endif %}">
-      ⚡ Electronics <span class="tab-badge">50</span>
-    </a>
-    <a href="{% url 'products' %}?collection=ingot_originals{% if query %}&search={{ query }}{% endif %}" class="collection-tab {% if collection == 'ingot_originals' %}active{% endif %}">
-      ✦ INGOT Originals <span class="tab-badge">20</span>
-    </a>
-  </div>
-
-  <!-- Control Toolbar -->
-  <div class="marketplace-toolbar">
-    <button type="button" class="filter-toggle-btn" id="filter-toggle-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg>
-      <span>Filter Catalogue</span>
+    <!-- Mobile Filter Open Button -->
+    <button type="button" class="mobile-filter-open-btn" id="mobile-filter-open-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      <span>Filter &amp; Sort</span>
     </button>
-
-    <div class="results-count">
-      <strong>{{ total_results }}</strong> product{{ total_results|pluralize }} found
-      {% if page_obj.paginator.num_pages > 1 %}
-        <span class="page-indicator">(Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }})</span>
-      {% endif %}
-    </div>
-
-    <!-- Sorting Control -->
-    <form method="get" class="sort-form" id="sort-form">
-      {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
-      {% if collection %}<input type="hidden" name="collection" value="{{ collection }}">{% endif %}
-      {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category }}">{% endif %}
-      {% if min_price %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
-      {% if max_price %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
-      {% if in_stock %}<input type="hidden" name="in_stock" value="1">{% endif %}
-      {% if deal %}<input type="hidden" name="deal" value="1">{% endif %}
-      {% if featured %}<input type="hidden" name="featured" value="1">{% endif %}
-
-      <label for="sort-select">Sort by:</label>
-      <select name="sort" id="sort-select" onchange="this.form.submit()">
-        <option value="relevance" {% if sort == 'relevance' %}selected{% endif %}>Featured / Relevance</option>
-        <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
-        <option value="price_low" {% if sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-        <option value="price_high" {% if sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-        <option value="name_asc" {% if sort == 'name_asc' %}selected{% endif %}>Name: A to Z</option>
-      </select>
-    </form>
   </div>
 
-  <!-- Active Filter Chips -->
-  {% if selected_category or min_price or max_price or in_stock or deal or featured or query or collection %}
-    <div class="active-filters-bar">
-      <span class="active-label">Active Filters:</span>
-      {% if collection %}<span class="filter-chip">Collection: {{ collection|title }}</span>{% endif %}
-      {% if query %}<span class="filter-chip">Query: "{{ query }}"</span>{% endif %}
-      {% if selected_category %}<span class="filter-chip">Category: {{ selected_category|title }}</span>{% endif %}
-      {% if min_price %}<span class="filter-chip">Min: ₹{{ min_price }}</span>{% endif %}
-      {% if max_price %}<span class="filter-chip">Max: ₹{{ max_price }}</span>{% endif %}
-      {% if in_stock %}<span class="filter-chip">In Stock Only</span>{% endif %}
-      {% if deal %}<span class="filter-chip">Deals Only</span>{% endif %}
-      {% if featured %}<span class="filter-chip">Featured Only</span>{% endif %}
-      <a href="{% url 'products' %}" class="clear-all-link">Reset all filters</a>
+  <!-- ACTIVE FILTER CHIPS (Removable) -->
+  {% if active_filters or query %}
+    <div class="active-chips-strip">
+      <span class="active-chips-label">ACTIVE FILTERS:</span>
+      {% if query %}
+        <a class="filter-chip-removable" href="{% url 'products' %}?{% if filter_querystring %}{{ filter_querystring }}{% endif %}">
+          Query: "{{ query }}" &times;
+        </a>
+      {% endif %}
+      {% for af in active_filters %}
+        {% if af.type == 'category' %}
+          <a class="filter-chip-removable" href="{% url 'products' %}?{% if collection %}collection={{ collection }}&{% endif %}{% if query %}search={{ query }}&{% endif %}{% if sort %}sort={{ sort }}&{% endif %}">
+            {{ af.label }} &times;
+          </a>
+        {% elif af.type == 'size' %}
+          <a class="filter-chip-removable" href="{% url 'products' %}?{% if collection %}collection={{ collection }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_color %}color={{ selected_color }}&{% endif %}{% if query %}search={{ query }}&{% endif %}">
+            {{ af.label }} &times;
+          </a>
+        {% elif af.type == 'color' %}
+          <a class="filter-chip-removable" href="{% url 'products' %}?{% if collection %}collection={{ collection }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if selected_size %}size={{ selected_size }}&{% endif %}{% if query %}search={{ query }}&{% endif %}">
+            {{ af.label }} &times;
+          </a>
+        {% else %}
+          <span class="filter-chip-removable">{{ af.label }}</span>
+        {% endif %}
+      {% endfor %}
+      <a href="{% url 'products' %}{% if collection %}?collection={{ collection }}{% endif %}" class="clear-all-action">Clear all</a>
     </div>
   {% endif %}
 
-  <!-- Main Marketplace Layout Grid -->
-  <div class="marketplace-body">
-    <!-- Left Sidebar / Drawer -->
-    <aside class="marketplace-sidebar" id="marketplace-sidebar">
-      <div class="sidebar-header">
-        <h3>Filter Catalogue</h3>
-        <button type="button" class="close-sidebar-btn" id="close-sidebar-btn">&times;</button>
-      </div>
-
-      <form action="{% url 'products' %}" method="get" class="filter-form">
-        {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
-        {% if sort %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
-
-        <!-- Collection Filter -->
-        <div class="filter-group">
-          <h4>Collection</h4>
-          <ul class="category-filter-list">
-            <li>
-              <label class="category-radio">
-                <input type="radio" name="collection" value="" {% if not collection %}checked{% endif %} onchange="this.form.submit()">
-                <span>All Collections (70)</span>
-              </label>
-            </li>
-            <li>
-              <label class="category-radio">
-                <input type="radio" name="collection" value="electronics" {% if collection == 'electronics' %}checked{% endif %} onchange="this.form.submit()">
-                <span>⚡ Electronics (50)</span>
-              </label>
-            </li>
-            <li>
-              <label class="category-radio">
-                <input type="radio" name="collection" value="ingot_originals" {% if collection == 'ingot_originals' %}checked{% endif %} onchange="this.form.submit()">
-                <span>✦ INGOT Originals (20)</span>
-              </label>
-            </li>
-          </ul>
+  <!-- MAIN LISTING TWO-COLUMN LAYOUT -->
+  <div class="listing-layout-grid">
+    <!-- LEFT SIDEBAR: FILTER & SORT (Desktop & Mobile Drawer) -->
+    <aside class="listing-sidebar-drawer" id="listing-sidebar-drawer">
+      <div class="sidebar-drawer-backdrop" id="sidebar-drawer-backdrop"></div>
+      <div class="sidebar-drawer-content">
+        <div class="sidebar-drawer-header">
+          <h3 class="sidebar-title">FILTER &amp; SORT</h3>
+          <button type="button" class="drawer-close-btn" id="drawer-close-btn" aria-label="Close Filters">&times;</button>
         </div>
 
-        <!-- Categories -->
-        <div class="filter-group">
-          <h4>Categories</h4>
-          <ul class="category-filter-list">
-            <li>
-              <label class="category-radio">
+        <form action="" method="get" class="filters-sidebar-form" id="filters-sidebar-form">
+          {% if query %}<input type="hidden" name="search" value="{{ query }}">{% endif %}
+          {% if collection %}<input type="hidden" name="collection" value="{{ collection }}">{% endif %}
+
+          <!-- SORT RADIOS GROUP -->
+          <div class="facet-group">
+            <h4 class="facet-heading">SORT BY</h4>
+            <div class="facet-options-list">
+              <label class="facet-radio-label">
+                <input type="radio" name="sort" value="relevance" {% if sort == 'relevance' %}checked{% endif %} onchange="this.form.submit()">
+                <span>Featured / Relevance</span>
+              </label>
+              <label class="facet-radio-label">
+                <input type="radio" name="sort" value="newest" {% if sort == 'newest' or not sort %}checked{% endif %} onchange="this.form.submit()">
+                <span>Newest Additions</span>
+              </label>
+              <label class="facet-radio-label">
+                <input type="radio" name="sort" value="price_low" {% if sort == 'price_low' %}checked{% endif %} onchange="this.form.submit()">
+                <span>Price: Low &rarr; High</span>
+              </label>
+              <label class="facet-radio-label">
+                <input type="radio" name="sort" value="price_high" {% if sort == 'price_high' %}checked{% endif %} onchange="this.form.submit()">
+                <span>Price: High &rarr; Low</span>
+              </label>
+              <label class="facet-radio-label">
+                <input type="radio" name="sort" value="discount" {% if sort == 'discount' %}checked{% endif %} onchange="this.form.submit()">
+                <span>Biggest Discount</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- CATEGORY FACET -->
+          <div class="facet-group">
+            <h4 class="facet-heading">CATEGORIES</h4>
+            <div class="facet-options-list scrollable-facet">
+              <label class="facet-radio-label">
                 <input type="radio" name="category" value="" {% if not selected_category %}checked{% endif %} onchange="this.form.submit()">
                 <span>All Categories</span>
               </label>
-            </li>
-            {% for cat in categories %}
-              <li>
-                <label class="category-radio">
+              {% for cat in categories %}
+                <label class="facet-radio-label">
                   <input type="radio" name="category" value="{{ cat.slug }}" {% if selected_category == cat.slug %}checked{% endif %} onchange="this.form.submit()">
                   <span>{{ cat.name }}</span>
                 </label>
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
-
-        <!-- Price Range Filter -->
-        <div class="filter-group">
-          <h4>Price Range (₹)</h4>
-          <div class="price-inputs-row">
-            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min ₹" min="0" step="100">
-            <span>to</span>
-            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max ₹" min="0" step="100">
+              {% endfor %}
+            </div>
           </div>
-        </div>
 
-        <!-- Special Filters -->
-        <div class="filter-group">
-          <h4>Availability & Offers</h4>
-          <label class="checkbox-filter">
-            <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %}>
-            <span>In Stock Only</span>
-          </label>
-          <label class="checkbox-filter">
-            <input type="checkbox" name="deal" value="1" {% if deal %}checked{% endif %}>
-            <span>Deals & Discounted</span>
-          </label>
-          <label class="checkbox-filter">
-            <input type="checkbox" name="featured" value="1" {% if featured %}checked{% endif %}>
-            <span>Featured Selection</span>
-          </label>
-        </div>
+          <!-- SIZE FACET (Only if real values exist in result set) -->
+          {% if available_sizes %}
+            <div class="facet-group">
+              <h4 class="facet-heading">SELECT SIZE</h4>
+              <div class="size-pill-facet-grid">
+                {% for sz in available_sizes %}
+                  <label class="size-facet-pill {% if selected_size == sz %}selected{% endif %}">
+                    <input type="radio" name="size" value="{{ sz }}" {% if selected_size == sz %}checked{% endif %} onchange="this.form.submit()">
+                    <span>{{ sz }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
 
-        <div class="filter-actions">
-          <button type="submit" class="button button-full">Apply Filters</button>
-          <a href="{% url 'products' %}" class="button button-ghost button-full">Reset</a>
-        </div>
-      </form>
+          <!-- COLOR FACET (Only if real values exist in result set) -->
+          {% if available_colors %}
+            <div class="facet-group">
+              <h4 class="facet-heading">SELECT COLOR</h4>
+              <div class="color-swatch-facet-grid">
+                {% for col in available_colors %}
+                  <label class="color-facet-item {% if selected_color == col.color_name %}selected{% endif %}" title="{{ col.color_name }}">
+                    <input type="radio" name="color" value="{{ col.color_name }}" {% if selected_color == col.color_name %}checked{% endif %} onchange="this.form.submit()">
+                    <span class="color-swatch-circle" style="background-color: {{ col.color_hex|default:'#000' }};"></span>
+                    <span class="color-name-text">{{ col.color_name }}</span>
+                  </label>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- PRICE RANGE FACET -->
+          <div class="facet-group">
+            <h4 class="facet-heading">PRICE RANGE (₹)</h4>
+            <div class="price-range-inputs">
+              <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" min="0" step="50" aria-label="Minimum Price">
+              <span class="range-sep">&ndash;</span>
+              <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" min="0" step="50" aria-label="Maximum Price">
+              <button type="submit" class="button button-small button-cyan">Apply</button>
+            </div>
+          </div>
+
+          <!-- TOGGLE FLAGS FACET -->
+          <div class="facet-group">
+            <h4 class="facet-heading">SPECIAL FILTERS</h4>
+            <label class="facet-checkbox-label">
+              <input type="checkbox" name="deal" value="1" {% if deal %}checked{% endif %} onchange="this.form.submit()">
+              <span>🔥 Deals of the Day</span>
+            </label>
+            <label class="facet-checkbox-label">
+              <input type="checkbox" name="featured" value="1" {% if featured %}checked{% endif %} onchange="this.form.submit()">
+              <span>★ Featured Items</span>
+            </label>
+            <label class="facet-checkbox-label">
+              <input type="checkbox" name="in_stock" value="1" {% if in_stock %}checked{% endif %} onchange="this.form.submit()">
+              <span>In Stock Only</span>
+            </label>
+          </div>
+
+          <div class="sidebar-bottom-actions">
+            <a href="{% url 'products' %}{% if collection %}?collection={{ collection }}{% endif %}" class="button button-ghost button-full">
+              Reset All Filters
+            </a>
+          </div>
+        </form>
+      </div>
     </aside>
 
-    <!-- Right Side Product Listing -->
-    <main class="marketplace-main">
+    <!-- RIGHT: PRODUCT RESULTS GRID -->
+    <main class="listing-main-content">
       {% if products %}
-        <div class="product-grid shop-product-grid">
+        <div class="responsive-product-grid">
           {% for product in products %}
-            {% include 'includes/product_card.html' %}
+            {% include 'includes/product_card.html' with product=product %}
           {% endfor %}
         </div>
 
-        <!-- Pagination -->
+        <!-- PAGINATION -->
         {% if page_obj.paginator.num_pages > 1 %}
-          <nav class="pagination-nav" aria-label="Product Page Navigation">
-            <ul class="pagination-list">
+          <nav class="pagination-nav" aria-label="Catalogue pagination">
+            <div class="pagination-inner">
               {% if page_obj.has_previous %}
-                <li>
-                  <a href="?page={{ page_obj.previous_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link prev-link">&laquo; Prev</a>
-                </li>
-              {% else %}
-                <li><span class="page-link prev-link disabled">&laquo; Prev</span></li>
+                <a href="?page={{ page_obj.previous_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link prev-link">
+                  &larr; Prev
+                </a>
               {% endif %}
 
-              {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                  <li><span class="page-link active">{{ num }}</span></li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                  <li>
-                    <a href="?page={{ num }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link">{{ num }}</a>
-                  </li>
-                {% endif %}
-              {% endfor %}
+              <div class="page-numbers">
+                {% for p_num in page_obj.paginator.page_range %}
+                  {% if p_num == page_obj.number %}
+                    <span class="page-link current">{{ p_num }}</span>
+                  {% elif p_num > page_obj.number|add:"-3" and p_num < page_obj.number|add:"3" %}
+                    <a href="?page={{ p_num }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link">
+                      {{ p_num }}
+                    </a>
+                  {% endif %}
+                {% endfor %}
+              </div>
 
               {% if page_obj.has_next %}
-                <li>
-                  <a href="?page={{ page_obj.next_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link next-link">Next &raquo;</a>
-                </li>
-              {% else %}
-                <li><span class="page-link next-link disabled">Next &raquo;</span></li>
+                <a href="?page={{ page_obj.next_page_number }}{% if filter_querystring %}&{{ filter_querystring }}{% endif %}" class="page-link next-link">
+                  Next &rarr;
+                </a>
               {% endif %}
-            </ul>
+            </div>
           </nav>
         {% endif %}
 
       {% else %}
-        <div class="empty-products marketplace-empty">
-          <div class="empty-icon">⌕</div>
-          <h3>No products match your criteria</h3>
-          <p>Try adjusting your search terms, price range, or collection filter.</p>
-          <a href="{% url 'products' %}" class="button">Reset All Filters</a>
+        <!-- EMPTY STATE -->
+        <div class="empty-results-state">
+          <div class="empty-state-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+          </div>
+          <h2 class="empty-state-title">No products match your criteria</h2>
+          <p class="empty-state-desc">Try resetting your filters or adjusting your price and size specifications to explore more products.</p>
+          <a href="{% url 'products' %}" class="button button-hero-primary">
+            Clear Filters &amp; View All
+          </a>
         </div>
       {% endif %}
     </main>
   </div>
 </div>
-
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('filter-toggle-btn');
-    const closeBtn = document.getElementById('close-sidebar-btn');
-    const sidebar = document.getElementById('marketplace-sidebar');
-
-    if (toggleBtn && sidebar) {
-      toggleBtn.addEventListener('click', function() {
-        sidebar.classList.toggle('active');
-      });
-    }
-
-    if (closeBtn && sidebar) {
-      closeBtn.addEventListener('click', function() {
-        sidebar.classList.remove('active');
-      });
-    }
-  });
-</script>
 {% endblock %}
