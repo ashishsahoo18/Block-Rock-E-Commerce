@@ -142,3 +142,210 @@ class ProductCatalogueAndShopTests(TestCase):
         self.assertEqual(resp_orig.status_code, 200)
         self.assertEqual(resp_orig.context['total_results'], 20)
 
+
+class IngotNewFeaturesTests(TestCase):
+    password = 'SecurePass!2026'
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='ingot_tester',
+            email='tester@ingot.com',
+            password=self.password,
+        )
+        self.client.force_login(self.user)
+        self.category = Category.objects.create(name='T-Shirts', slug='t-shirts', is_ingot_original=True)
+        self.product = Product.objects.create(
+            name='INGOT Heavyweight Tee',
+            slug='ingot-heavyweight-tee',
+            category=self.category,
+            brand='INGOT',
+            price=Decimal('1499.00'),
+            compare_at_price=Decimal('2499.00'),
+            stock=20,
+            is_active=True,
+            is_ingot_original=True,
+            is_featured=True,
+            is_deal=True,
+        )
+
+    def test_product_image_ordering_and_primary_selection(self):
+        img1 = self.product.images.create(
+            image='products/test1.png',
+            alt_text='Front Angle',
+            sort_order=10,
+            is_primary=False,
+        )
+        img2 = self.product.images.create(
+            image='products/test2.png',
+            alt_text='Hero Front',
+            sort_order=0,
+            is_primary=True,
+        )
+        img3 = self.product.images.create(
+            image='products/test3.png',
+            alt_text='Back Detail',
+            sort_order=5,
+            is_primary=False,
+        )
+
+        # Primary image URL should point to img2
+        self.assertEqual(self.product.primary_image_url, img2.image.url)
+        # Secondary image URL should point to img3 (next in sort_order)
+        self.assertEqual(self.product.secondary_image_url, img3.image.url)
+
+    def test_product_variant_properties_and_helpers(self):
+        v1 = self.product.variants.create(
+            size='M',
+            color_name='Onyx Black',
+            color_hex='#111111',
+            stock=10,
+            sku='ING-TEE-M-BLK',
+        )
+        v2 = self.product.variants.create(
+            size='L',
+            color_name='Onyx Black',
+            color_hex='#111111',
+            stock=5,
+            sku='ING-TEE-L-BLK',
+        )
+        v3 = self.product.variants.create(
+            size='M',
+            color_name='Cyan Vapor',
+            color_hex='#00f0ff',
+            stock=0,
+            sku='ING-TEE-M-CYN',
+        )
+
+        self.assertTrue(self.product.has_variants)
+        self.assertIn('M', self.product.available_sizes)
+        self.assertIn('L', self.product.available_sizes)
+        # Only in-stock colors should be considered available
+        available_colors = [c['name'] for c in self.product.available_colors]
+        self.assertIn('Onyx Black', available_colors)
+
+    def test_banner_ordering_and_active_scope(self):
+        from products.models import Banner
+        b1 = Banner.objects.create(
+            title='Banner One',
+            sort_order=2,
+            is_active=True,
+        )
+        b2 = Banner.objects.create(
+            title='Banner Two',
+            sort_order=1,
+            is_active=True,
+        )
+        b3 = Banner.objects.create(
+            title='Banner Inactive',
+            sort_order=0,
+            is_active=False,
+        )
+
+        active_banners = list(Banner.objects.filter(is_active=True).order_by('sort_order'))
+        self.assertEqual(len(active_banners), 2)
+        self.assertEqual(active_banners[0].title, 'Banner Two')
+        self.assertEqual(active_banners[1].title, 'Banner One')
+
+    def test_size_chart_model_and_association(self):
+        from products.models import SizeChart
+        chart = SizeChart.objects.create(
+            name='T-Shirts Standard Guide',
+            category=self.category,
+            chart_data={
+                'columns': ['Size', 'Chest (in)', 'Length (in)'],
+                'rows': [
+                    {'Size': 'S', 'Chest (in)': '38', 'Length (in)': '27'},
+                    {'Size': 'M', 'Chest (in)': '40', 'Length (in)': '28'},
+                    {'Size': 'L', 'Chest (in)': '42', 'Length (in)': '29'},
+                ]
+            },
+            description='All measurements are taken flat.'
+        )
+        self.product.size_chart = chart
+        self.product.save()
+
+        response = self.client.get(reverse('product_detail', args=[self.product.slug]))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('size_chart', response.context)
+        self.assertEqual(response.context['size_chart'].name, 'T-Shirts Standard Guide')
+
+    def test_cart_add_with_variant(self):
+        from cart.models import CartItem
+        variant = self.product.variants.create(
+            size='XL',
+            color_name='Onyx Black',
+            color_hex='#111111',
+            stock=8,
+            sku='ING-TEE-XL-BLK',
+        )
+
+        response = self.client.post(
+            reverse('add_to_cart', args=[self.product.slug]),
+            {'quantity': '2', 'variant_id': str(variant.id)}
+        )
+        self.assertRedirects(response, reverse('cart_detail'))
+
+        cart_item = CartItem.objects.get(cart__user=self.user, product=self.product)
+        self.assertEqual(cart_item.variant, variant)
+        self.assertEqual(cart_item.quantity, 2)
+        self.assertIn('XL', cart_item.variant_label)
+
+    def test_wishlist_toggle_view(self):
+        from cart.models import WishlistItem
+        # Toggle Add
+        response = self.client.post(
+            reverse('toggle_wishlist', args=[self.product.slug]),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['in_wishlist'])
+        self.assertEqual(WishlistItem.objects.filter(wishlist__user=self.user, product=self.product).count(), 1)
+
+        # Toggle Remove
+        response = self.client.post(
+            reverse('toggle_wishlist', args=[self.product.slug]),
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertFalse(data['in_wishlist'])
+        self.assertEqual(WishlistItem.objects.filter(wishlist__user=self.user, product=self.product).count(), 0)
+
+    def test_variant_stock_decrement_on_order_placement(self):
+        from cart.models import Cart, CartItem
+        from orders.models import Order
+        variant = self.product.variants.create(
+            size='M',
+            color_name='Onyx Black',
+            color_hex='#111111',
+            stock=10,
+            sku='ING-TEE-M-DEC',
+        )
+        cart = Cart.objects.create(user=self.user)
+        CartItem.objects.create(cart=cart, product=self.product, variant=variant, quantity=3)
+
+        shipping_data = {
+            'shipping_name': 'Ingot Tester',
+            'phone': '+91 99999 88888',
+            'email': 'tester@ingot.com',
+            'address_line1': 'Flat 101, Cyber Heights',
+            'city': 'Bengaluru',
+            'state': 'Karnataka',
+            'postal_code': '560001',
+            'country': 'India',
+            'payment_method': 'Cash on Delivery',
+        }
+
+        response = self.client.post(reverse('place_order'), shipping_data)
+        self.assertEqual(Order.objects.count(), 1)
+        order = Order.objects.first()
+        order_item = order.items.first()
+
+        # Variant stock should have decremented from 10 to 7
+        variant.refresh_from_db()
+        self.assertEqual(variant.stock, 7)
+        self.assertEqual(order_item.variant, variant)
+        self.assertIn('Size: M', order_item.variant_label)
+
+
