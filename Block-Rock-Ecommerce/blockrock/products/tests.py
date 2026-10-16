@@ -349,3 +349,113 @@ class IngotNewFeaturesTests(TestCase):
         self.assertIn('Size: M', order_item.variant_label)
 
 
+class AdminCatalogueManagementTests(TestCase):
+    """Verify that Django Admin remains the live catalogue source of truth."""
+
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser(
+            username='catalogue_admin',
+            email='catalogue-admin@example.com',
+            password='SecurePass!2026',
+        )
+        self.category = Category.objects.create(name='Admin managed category')
+        self.client.force_login(self.admin_user)
+
+    def _inline_management_data(self):
+        return {
+            'images-TOTAL_FORMS': '0',
+            'images-INITIAL_FORMS': '0',
+            'images-MIN_NUM_FORMS': '0',
+            'images-MAX_NUM_FORMS': '1000',
+            'variants-TOTAL_FORMS': '0',
+            'variants-INITIAL_FORMS': '0',
+            'variants-MIN_NUM_FORMS': '0',
+            'variants-MAX_NUM_FORMS': '1000',
+        }
+
+    def _product_form_data(self, is_active=True):
+        data = {
+            'name': 'Admin managed product',
+            'slug': 'admin-managed-product',
+            'brand': 'Block Rock',
+            'category': str(self.category.pk),
+            'short_description': 'Created through Django Admin.',
+            'description': 'This product is managed through Django Admin.',
+            'price': '999.00',
+            'discount_price': '',
+            'compare_at_price': '',
+            'discount': '0',
+            'stock': '5',
+            'rating': '0',
+            'review_count': '0',
+        }
+        if is_active:
+            data['is_active'] = 'on'
+        data.update(self._inline_management_data())
+        return data
+
+    def test_admin_can_create_and_deactivate_a_storefront_product(self):
+        add_url = reverse('admin:products_product_add')
+        response = self.client.post(add_url, self._product_form_data())
+        if response.status_code != 302:
+            form_errors = response.context['adminform'].form.errors.as_text()
+            inline_errors = [
+                inline.formset.errors
+                for inline in response.context['inline_admin_formsets']
+            ]
+            self.fail(f'Admin add form failed: {form_errors} | inline errors: {inline_errors}')
+        self.assertRedirects(response, reverse('admin:products_product_changelist'))
+
+        product = Product.objects.get(slug='admin-managed-product')
+        storefront_response = self.client.get(reverse('products'))
+        self.assertEqual(storefront_response.context['total_results'], 1)
+        self.assertContains(storefront_response, product.name)
+
+        response = self.client.post(
+            reverse('admin:products_product_change', args=[product.pk]),
+            self._product_form_data(is_active=False),
+        )
+        self.assertRedirects(response, reverse('admin:products_product_changelist'))
+
+        product.refresh_from_db()
+        self.assertFalse(product.is_active)
+        storefront_response = self.client.get(reverse('products'))
+        self.assertEqual(storefront_response.context['total_results'], 0)
+        self.assertNotContains(storefront_response, product.name)
+
+    def test_admin_archives_referenced_products_and_deletes_unreferenced_products(self):
+        protected_product = Product.objects.create(
+            name='Protected product',
+            category=self.category,
+            brand='Block Rock',
+            description='Referenced by a wishlist item.',
+            price=Decimal('999.00'),
+            stock=1,
+            is_active=True,
+        )
+        wishlist = self.admin_user.wishlist
+        wishlist.items.create(product=protected_product)
+
+        response = self.client.post(
+            reverse('admin:products_product_delete', args=[protected_product.pk]),
+            {'post': 'yes'},
+        )
+        self.assertRedirects(response, reverse('admin:products_product_changelist'))
+        protected_product.refresh_from_db()
+        self.assertFalse(protected_product.is_active)
+
+        disposable_product = Product.objects.create(
+            name='Disposable product',
+            category=self.category,
+            brand='Block Rock',
+            description='Not referenced by customer or order data.',
+            price=Decimal('999.00'),
+            stock=1,
+            is_active=True,
+        )
+        response = self.client.post(
+            reverse('admin:products_product_delete', args=[disposable_product.pk]),
+            {'post': 'yes'},
+        )
+        self.assertRedirects(response, reverse('admin:products_product_changelist'))
+        self.assertFalse(Product.objects.filter(pk=disposable_product.pk).exists())
