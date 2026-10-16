@@ -4,16 +4,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import User
 from django.contrib.auth.views import PasswordResetCompleteView, PasswordResetConfirmView, PasswordResetDoneView, PasswordResetView
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_http_methods, require_POST
 
 from cart.models import Cart, Wishlist
 
 from .forms import NewsletterSubscriptionForm, ProfileForm, RegistrationForm
 from .models import Subscriber
+from .services import send_welcome_email
 
 
 def _safe_next_url(request):
@@ -72,6 +73,7 @@ def subscribe_newsletter(request):
         subscriber, created = Subscriber.objects.get_or_create(email=email)
         if created:
             messages.success(request, "You're subscribed! Welcome to INGOT.")
+            send_welcome_email(subscriber)
         elif subscriber.is_active:
             messages.info(request, "You're already subscribed to INGOT.")
         else:
@@ -79,10 +81,23 @@ def subscribe_newsletter(request):
             subscriber.subscribed_at = timezone.now()
             subscriber.save(update_fields=['is_active', 'subscribed_at'])
             messages.success(request, "You're subscribed! Welcome to INGOT.")
+            send_welcome_email(subscriber)
     else:
         error = form.errors.get('email')
         messages.error(request, error[0] if error else 'Please enter a valid email address.')
     return redirect('home')
+
+
+@require_http_methods(['GET', 'POST'])
+def newsletter_unsubscribe(request, token):
+    """Display a confirmation page and process an unsubscribe only by POST."""
+    subscriber = get_object_or_404(Subscriber, unsubscribe_token=token)
+    if request.method == 'POST':
+        if subscriber.is_active:
+            subscriber.is_active = False
+            subscriber.save(update_fields=['is_active'])
+        return render(request, 'accounts/unsubscribe.html', {'unsubscribed': True})
+    return render(request, 'accounts/unsubscribe.html', {'unsubscribed': False, 'token': token})
 
 
 def _account_stats(user):

@@ -1,0 +1,5 @@
+# Local credentials and deployment settings
+Block-Rock-Ecommerce/blockrock/.env
+.env
+.env.*
+!.env.example

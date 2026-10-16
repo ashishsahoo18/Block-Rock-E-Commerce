@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.utils.html import format_html
 from django.utils import timezone
+from accounts.services import queue_product_campaign
 from .models import Category, Product, ProductImage, ProductVariant, Banner, SizeChart
 
 
@@ -59,6 +60,7 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ('-created_at',)
     prepopulated_fields = {'slug': ('name',)}
     inlines = [ProductImageInline, ProductVariantInline]
+    actions = ('queue_product_newsletter_announcements',)
     fieldsets = (
         ('Basic Information', {
             'fields': ('name', 'slug', 'brand', 'category', 'short_description', 'description')
@@ -82,6 +84,40 @@ class ProductAdmin(admin.ModelAdmin):
     @admin.display(description='Selling Price', ordering='price')
     def current_price_display(self, product):
         return product.current_price
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if not change and obj.is_active:
+            _, created = queue_product_campaign(obj)
+            if created:
+                self.message_user(
+                    request,
+                    'New-product newsletter notification queued for delivery.',
+                    level=messages.INFO,
+                )
+
+    @admin.action(description='Queue selected active products for a newsletter announcement')
+    def queue_product_newsletter_announcements(self, request, queryset):
+        queued = 0
+        skipped = 0
+        for product in queryset:
+            _, created = queue_product_campaign(product)
+            if created:
+                queued += 1
+            else:
+                skipped += 1
+        if queued:
+            self.message_user(
+                request,
+                f'{queued} product announcement(s) queued for delivery.',
+                level=messages.SUCCESS,
+            )
+        if skipped:
+            self.message_user(
+                request,
+                f'{skipped} product(s) were inactive or had already been queued.',
+                level=messages.INFO,
+            )
 
     def _has_protected_references(self, product):
         return (

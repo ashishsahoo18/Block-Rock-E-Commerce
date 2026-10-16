@@ -10,10 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def _load_env_file(env_path):
+    """Load simple KEY=VALUE pairs without overriding real deployment env vars."""
+    if not env_path.exists():
+        return
+    for raw_line in env_path.read_text(encoding='utf-8').splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        key = key.removeprefix('export ').strip()
+        if key.isidentifier():
+            os.environ.setdefault(key, value.strip().strip('"').strip("'"))
+
+
+def _env_bool(name, default=False):
+    return os.environ.get(name, str(default)).strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+_load_env_file(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -130,4 +152,19 @@ STATICFILES_DIRS = [
 ]
 
 LOGIN_URL = 'login'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Email configuration is intentionally environment-only. Keep credentials in
+# the ignored .env file or deployment secrets, never in this repository.
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = _env_bool('EMAIL_USE_TLS', True)
+EMAIL_USE_SSL = _env_bool('EMAIL_USE_SSL', False)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+EMAIL_TIMEOUT = int(os.environ.get('EMAIL_TIMEOUT', '10'))
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'sahooashish673@gmail.com')
+EMAIL_FROM_NAME = os.environ.get('EMAIL_FROM_NAME', 'INGOT')
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
+NEWSLETTER_SEND_WELCOME_EMAIL = _env_bool('NEWSLETTER_SEND_WELCOME_EMAIL', False)

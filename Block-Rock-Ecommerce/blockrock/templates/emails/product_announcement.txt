@@ -1,0 +1,10 @@
+New from {{ brand_name }}: {{ product.name }}
+
+{{ product.short_description|default:product.description }}
+Price: {{ product.current_price }}
+
+View the product:
+{{ product_url }}
+
+To stop receiving these emails, visit:
+{{ unsubscribe_url }}

@@ -1,10 +1,18 @@
+from decimal import Decimal
+from unittest.mock import patch
+
+from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.messages import get_messages
 from django.core import mail
-from django.test import Client, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
-from .models import Subscriber
+from products.admin import ProductAdmin
+from products.models import Category, Product
+
+from .models import MarketingCampaign, MarketingEmailDelivery, PromotionAnnouncement, Subscriber
+from .services import deliver_pending_campaigns, publish_promotion, queue_product_campaign
 
 
 class AuthenticationFlowTests(TestCase):
@@ -237,3 +245,161 @@ class NewsletterSubscriptionTests(TestCase):
         })
         subscriber.refresh_from_db()
         self.assertTrue(subscriber.is_active)
+
+
+class NewsletterEmailNotificationTests(TestCase):
+    def setUp(self):
+        self.admin_user = User.objects.create_superuser(
+            username='email_admin',
+            email='email-admin@example.com',
+            password='SecurePass!2026',
+        )
+        self.category = Category.objects.create(name='Email notification category')
+        self.request_factory = RequestFactory()
+
+    def _product(self, *, active=True, name='Newsletter product'):
+        return Product.objects.create(
+            name=name,
+            category=self.category,
+            brand='INGOT',
+            description='A product used to test newsletter notifications.',
+            short_description='Newsletter-ready product.',
+            price=Decimal('1499.00'),
+            stock=3,
+            is_active=active,
+        )
+
+    @override_settings(
+        EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
+        NEWSLETTER_SEND_WELCOME_EMAIL=True,
+    )
+    def test_subscription_sends_one_welcome_email_with_unsubscribe_link(self):
+        user = User.objects.create_user(username='welcome_user', password='Password123!')
+        self.client.force_login(user)
+
+        response = self.client.post(reverse('newsletter_subscribe'), {'email': 'welcome@example.com'})
+
+        self.assertRedirects(response, reverse('home'))
+        self.assertEqual(len(mail.outbox), 1)
+        subscriber = Subscriber.objects.get(email='welcome@example.com')
+        self.assertEqual(mail.outbox[0].to, ['welcome@example.com'])
+        self.assertIn(str(subscriber.unsubscribe_token), mail.outbox[0].body)
+        self.assertIsNotNone(subscriber.welcome_email_sent_at)
+
+    def test_unsubscribe_requires_post_and_deactivates_subscriber(self):
+        subscriber = Subscriber.objects.create(email='unsubscribe@example.com')
+        url = reverse('newsletter_unsubscribe', kwargs={'token': subscriber.unsubscribe_token})
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        subscriber.refresh_from_db()
+        self.assertTrue(subscriber.is_active)
+
+        csrf_client = Client(enforce_csrf_checks=True)
+        self.assertEqual(csrf_client.post(url).status_code, 403)
+        self.client.post(url)
+        subscriber.refresh_from_db()
+        self.assertFalse(subscriber.is_active)
+
+    def test_new_active_admin_product_queues_one_campaign_without_sending(self):
+        product = Product(
+            name='Admin-created email product',
+            category=self.category,
+            brand='INGOT',
+            description='Created through Django Admin.',
+            price=Decimal('999.00'),
+            stock=1,
+            is_active=True,
+        )
+        request = self.request_factory.post('/admin/products/product/add/')
+        request.user = self.admin_user
+        product_admin = ProductAdmin(Product, admin.site)
+
+        with patch.object(ProductAdmin, 'message_user'):
+            product_admin.save_model(request, product, form=None, change=False)
+            product.name = 'Edited product name'
+            product_admin.save_model(request, product, form=None, change=True)
+
+        self.assertEqual(MarketingCampaign.objects.filter(product=product).count(), 1)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', SITE_URL='https://shop.example')
+    def test_product_campaign_delivers_individually_once_and_excludes_inactive_subscribers(self):
+        active_subscriber = Subscriber.objects.create(email='active@example.com')
+        second_active_subscriber = Subscriber.objects.create(email='second-active@example.com')
+        Subscriber.objects.create(email='inactive@example.com', is_active=False)
+        product = self._product()
+        campaign, created = queue_product_campaign(product)
+
+        self.assertTrue(created)
+        first_result = deliver_pending_campaigns()
+        second_result = deliver_pending_campaigns()
+
+        self.assertEqual(first_result['sent'], 2)
+        self.assertEqual(second_result['sent'], 0)
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(
+            {tuple(message.to) for message in mail.outbox},
+            {(active_subscriber.email,), (second_active_subscriber.email,)},
+        )
+        for message in mail.outbox:
+            self.assertEqual(message.bcc, [])
+            self.assertIn(product.name, message.subject)
+            self.assertIn('https://shop.example/products/', message.body)
+        delivery = MarketingEmailDelivery.objects.get(campaign=campaign, subscriber=active_subscriber)
+        self.assertEqual(delivery.status, MarketingEmailDelivery.Status.SENT)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_inactive_product_campaign_is_cancelled_without_sending(self):
+        Subscriber.objects.create(email='subscriber@example.com')
+        product = self._product()
+        campaign, _ = queue_product_campaign(product)
+        product.is_active = False
+        product.save(update_fields=['is_active'])
+
+        result = deliver_pending_campaigns()
+
+        campaign.refresh_from_db()
+        self.assertEqual(result['sent'], 0)
+        self.assertEqual(campaign.status, MarketingCampaign.Status.CANCELLED)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_explicit_promotion_publish_queues_and_sends_one_campaign(self):
+        subscriber = Subscriber.objects.create(email='promotion@example.com')
+        promotion = PromotionAnnouncement.objects.create(
+            title='A real promotion',
+            message='A message written by the administrator.',
+            destination_url='/shop/',
+        )
+
+        self.assertFalse(MarketingCampaign.objects.exists())
+        campaign, created = publish_promotion(promotion)
+        _, created_again = publish_promotion(promotion)
+        result = deliver_pending_campaigns()
+
+        promotion.refresh_from_db()
+        self.assertTrue(created)
+        self.assertFalse(created_again)
+        self.assertTrue(promotion.is_published)
+        self.assertIsNotNone(promotion.published_at)
+        self.assertEqual(result['sent'], 1)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [subscriber.email])
+        self.assertEqual(MarketingCampaign.objects.filter(promotion=promotion).count(), 1)
+        self.assertEqual(campaign.campaign_type, MarketingCampaign.CampaignType.PROMOTION)
+
+    def test_delivery_failure_is_recorded_without_exposing_backend_details(self):
+        subscriber = Subscriber.objects.create(email='failure@example.com')
+        campaign, _ = queue_product_campaign(self._product())
+
+        with patch('accounts.services._send_email', side_effect=RuntimeError('SMTP secret should not be stored')):
+            result = deliver_pending_campaigns()
+
+        delivery = MarketingEmailDelivery.objects.get(campaign=campaign, subscriber=subscriber)
+        campaign.refresh_from_db()
+        self.assertEqual(result['failed'], 1)
+        self.assertEqual(delivery.status, MarketingEmailDelivery.Status.FAILED)
+        self.assertEqual(delivery.attempts, 1)
+        self.assertEqual(delivery.last_error, 'Email backend error: RuntimeError')
+        self.assertEqual(campaign.status, MarketingCampaign.Status.PARTIAL)

@@ -1,0 +1,6 @@
+Welcome to {{ brand_name }}
+
+You are now subscribed to product launches and promotional announcements.
+
+To stop receiving these emails, visit:
+{{ unsubscribe_url }}

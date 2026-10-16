@@ -1,0 +1,9 @@
+{{ promotion.title }}
+
+{{ promotion.message }}
+
+Learn more:
+{{ destination_url }}
+
+To stop receiving these emails, visit:
+{{ unsubscribe_url }}

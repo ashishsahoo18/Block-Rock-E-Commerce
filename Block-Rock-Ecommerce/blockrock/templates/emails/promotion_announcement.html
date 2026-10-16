@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <body style="margin:0;background:#f4f4f4;font-family:Arial,sans-serif;color:#171717;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f4f4f4;padding:24px 12px;">
+      <tr><td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:600px;background:#ffffff;border:1px solid #e2e2e2;">
+          <tr><td style="padding:28px 32px;background:#151515;color:#ffffff;font-size:22px;font-weight:700;letter-spacing:1px;">{{ brand_name }}</td></tr>
+          <tr><td style="padding:32px;font-size:16px;line-height:1.6;">
+            <h1 style="margin:0 0 16px;font-size:26px;">{{ promotion.title }}</h1>
+            {% if promotion_image_url %}<img src="{{ promotion_image_url }}" alt="{{ promotion.title }}" style="display:block;width:100%;max-width:536px;height:auto;margin:0 0 20px;">{% endif %}
+            <p style="margin:0 0 24px;white-space:pre-line;">{{ promotion.message }}</p>
+            <a href="{{ destination_url }}" style="display:inline-block;background:#151515;color:#ffffff;padding:12px 20px;text-decoration:none;font-weight:700;">Learn more</a>
+          </td></tr>
+          <tr><td style="padding:20px 32px;border-top:1px solid #e2e2e2;color:#666;font-size:12px;line-height:1.5;">
+            Prefer not to receive these emails? <a href="{{ unsubscribe_url }}" style="color:#666;">Unsubscribe</a>.
+          </td></tr>
+        </table>
+      </td></tr>
+    </table>
+  </body>
+</html>

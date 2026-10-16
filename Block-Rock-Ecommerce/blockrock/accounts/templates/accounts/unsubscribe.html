@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Newsletter preferences | INGOT{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width: 680px;">
+    {% if unsubscribed %}
+      <h1>You've been unsubscribed.</h1>
+      <p>You will no longer receive INGOT marketing emails.</p>
+    {% else %}
+      <h1>Unsubscribe from marketing emails?</h1>
+      <p>You can resubscribe later from the newsletter form if you change your mind.</p>
+      <form method="post">
+        {% csrf_token %}
+        <button class="button button-hero-primary" type="submit">Unsubscribe</button>
+      </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
