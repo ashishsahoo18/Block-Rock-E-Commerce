@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.contrib import messages
 from django.utils.html import format_html
+from django.utils import timezone
 from .models import Category, Product, ProductImage, ProductVariant, Banner, SizeChart
 
 
@@ -81,6 +83,55 @@ class ProductAdmin(admin.ModelAdmin):
     def current_price_display(self, product):
         return product.current_price
 
+    def _has_protected_references(self, product):
+        return (
+            product.cart_items.exists()
+            or product.wishlist_items.exists()
+            or product.order_items.exists()
+        )
+
+    def _archive_product(self, request, product):
+        product.is_active = False
+        product.is_featured = False
+        product.is_deal = False
+        product.updated_at = timezone.now()
+        product.save(update_fields=('is_active', 'is_featured', 'is_deal', 'updated_at'))
+        self.message_user(
+            request,
+            f'{product.name} was archived instead of deleted because it is referenced by customer or order data.',
+            level=messages.WARNING,
+        )
+
+    def delete_model(self, request, product):
+        if self._has_protected_references(product):
+            self._archive_product(request, product)
+            return
+        super().delete_model(request, product)
+
+    def delete_queryset(self, request, queryset):
+        protected_products = []
+        deletable_ids = []
+        for product in queryset:
+            if self._has_protected_references(product):
+                protected_products.append(product.pk)
+            else:
+                deletable_ids.append(product.pk)
+
+        if protected_products:
+            Product.objects.filter(pk__in=protected_products).update(
+                is_active=False,
+                is_featured=False,
+                is_deal=False,
+                updated_at=timezone.now(),
+            )
+            self.message_user(
+                request,
+                f'{len(protected_products)} referenced product(s) were archived instead of deleted.',
+                level=messages.WARNING,
+            )
+        if deletable_ids:
+            Product.objects.filter(pk__in=deletable_ids).delete()
+
 
 @admin.register(Banner)
 class BannerAdmin(admin.ModelAdmin):
@@ -97,4 +148,3 @@ class SizeChartAdmin(admin.ModelAdmin):
     list_filter = ('is_active', 'category')
     search_fields = ('name', 'description')
     ordering = ('name',)
-
