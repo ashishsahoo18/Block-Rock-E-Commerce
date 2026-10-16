@@ -433,7 +433,9 @@ class AdminCatalogueManagementTests(TestCase):
             stock=1,
             is_active=True,
         )
-        wishlist = self.admin_user.wishlist
+        from cart.models import Wishlist
+
+        wishlist, _ = Wishlist.objects.get_or_create(user=self.admin_user)
         wishlist.items.create(product=protected_product)
 
         response = self.client.post(
