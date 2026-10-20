@@ -1,0 +1,502 @@
+[
+  {
+    "slug": "hp-omnibook-ultra-flip-14-fh0002ne",
+    "name": "HP OmniBook Ultra Flip 14-fh0002ne",
+    "brand": "HP",
+    "image_file": "products/laptops/hp-omnibook-ultra-flip-14-fh0002ne.png",
+    "specification_source": "https://h20195.www2.hp.com/v2/GetDocument.aspx?docname=c09053303",
+    "image_source_page": "https://www.hp.com/emea_middle_east-ar/products/laptops/product-details/2102726020",
+    "image_source_url": "https://hp.widen.net/content/ngot4aivlx/png/ngot4aivlx.png?color=ffffff00&dpi=72&h=600&w=800",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "hp-pavilion-plus-14-ew1097nr",
+    "name": "HP Pavilion Plus 14-ew1097nr",
+    "brand": "HP",
+    "image_file": "products/laptops/hp-pavilion-plus-14-ew1097nr.png",
+    "specification_source": "https://support.hp.com/us-en/document/ish_9794549-9794594-16",
+    "image_source_page": "https://www.hp.com/emea_middle_east-ar/products/laptops/product-details/2102726020",
+    "image_source_url": "https://hp.widen.net/content/ngot4aivlx/png/ngot4aivlx.png?color=ffffff00&dpi=72&h=600&w=800",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "hp-elitebook-1040-g11",
+    "name": "HP EliteBook 1040 G11",
+    "brand": "HP",
+    "image_file": "products/laptops/hp-elitebook-1040-g11.png",
+    "specification_source": "https://support.hp.com/us-en/document/ish_10412860-10412927-16",
+    "image_source_page": "https://www.hp.com/emea_middle_east-ar/products/laptops/product-details/2102726020",
+    "image_source_url": "https://hp.widen.net/content/ngot4aivlx/png/ngot4aivlx.png?color=ffffff00&dpi=72&h=600&w=800",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "hp-victus-15-fa1093dx",
+    "name": "HP Victus 15-fa1093dx",
+    "brand": "HP",
+    "image_file": "products/laptops/hp-victus-15-fa1093dx.png",
+    "specification_source": "https://support.hp.com/us-en/document/ish_9387029-9387091-16",
+    "image_source_page": "https://www.hp.com/emea_middle_east-ar/products/laptops/product-details/2102726020",
+    "image_source_url": "https://hp.widen.net/content/ngot4aivlx/png/ngot4aivlx.png?color=ffffff00&dpi=72&h=600&w=800",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "hp-zbook-studio-16-g11",
+    "name": "HP ZBook Studio 16 G11",
+    "brand": "HP",
+    "image_file": "products/laptops/hp-zbook-studio-16-g11.png",
+    "specification_source": "https://support.hp.com/us-en/document/ish_10551506-10551520-16",
+    "image_source_page": "https://www.hp.com/emea_middle_east-ar/products/laptops/product-details/2102726020",
+    "image_source_url": "https://hp.widen.net/content/ngot4aivlx/png/ngot4aivlx.png?color=ffffff00&dpi=72&h=600&w=800",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "dell-inspiron-14-plus-7440",
+    "name": "Dell Inspiron 14 Plus 7440",
+    "brand": "Dell",
+    "image_file": "products/laptops/dell-inspiron-14-plus-7440.webp",
+    "specification_source": "https://www.dell.com/support/manuals/en-us/inspiron-14-7440-laptop/inspiron-7440-plus-owners-manual/technical-specifications",
+    "image_source_page": "https://www.dellonline.co.za/products/dell-latitude-7450-14-inch-core-ultra-7-165u-16gb-ram-512gb-ssd-5g-win-11-pro-laptop-315899",
+    "image_source_url": "https://www.dellonline.co.za/cdn/shop/files/31d8a09c-4bdf-4d47-953b-b0270b1f08de-1.jpg?v=1736939232",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "dell-xps-13-9340",
+    "name": "Dell XPS 13 9340",
+    "brand": "Dell",
+    "image_file": "products/laptops/dell-xps-13-9340.webp",
+    "specification_source": "https://www.dell.com/support/manuals/en-us/xps-13-9340-laptop/xps-13-9340_owners_manual/processor",
+    "image_source_page": "https://www.dellonline.co.za/products/dell-latitude-7450-14-inch-core-ultra-7-165u-16gb-ram-512gb-ssd-5g-win-11-pro-laptop-315899",
+    "image_source_url": "https://www.dellonline.co.za/cdn/shop/files/31d8a09c-4bdf-4d47-953b-b0270b1f08de-1.jpg?v=1736939232",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "dell-latitude-7450",
+    "name": "Dell Latitude 7450",
+    "brand": "Dell",
+    "image_file": "products/laptops/dell-latitude-7450.avif",
+    "specification_source": "https://www.dell.com/support/manuals/en-us/latitude-14-7450-laptop/latitude-7450-owners-manual/technical-specifications",
+    "image_source_page": "https://www.dell.com/en-us/shop/dell-laptops/latitude-7450-laptop/spd/latitude-14-7450-laptop",
+    "image_source_url": "https://i.dell.com/is/image/DellContent/content/dam/images/logos/dell-technologies/stacked/digital/delltech-logo-stk-blue-rgb.png?wid=1346&hei=710&fit=fit",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "alienware-m16-r2",
+    "name": "Alienware m16 R2",
+    "brand": "Dell",
+    "image_file": "products/laptops/alienware-m16-r2.avif",
+    "specification_source": "https://www.dell.com/support/manuals/en-us/alienware-m16-r2-laptop/alienware-m16-r2-owners-manual/technical-specifications",
+    "image_source_page": "https://www.dell.com/en-us/shop/dell-laptops/alienware-m16-r2-gaming-laptop/spd/alienware-m16-r2-laptop",
+    "image_source_url": "https://i.dell.com/is/image/DellContent/content/dam/images/logos/dell-technologies/stacked/digital/delltech-logo-stk-blue-rgb.png?wid=1346&hei=710&fit=fit",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "dell-precision-5690",
+    "name": "Dell Precision 5690",
+    "brand": "Dell",
+    "image_file": "products/laptops/dell-precision-5690.avif",
+    "specification_source": "https://www.dell.com/support/manuals/en-us/precision-16-5690-laptop/precision-5690-owners-manual/technical-specifications",
+    "image_source_page": "https://www.dell.com/en-us/shop/dell-laptops/precision-5690-workstation/spd/precision-16-5690-laptop",
+    "image_source_url": "https://i.dell.com/is/image/DellContent/content/dam/images/logos/dell-technologies/stacked/digital/delltech-logo-stk-blue-rgb.png?wid=1346&hei=710&fit=fit",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "lenovo-ideapad-slim-3-15amn8",
+    "name": "Lenovo IdeaPad Slim 3 15AMN8",
+    "brand": "Lenovo",
+    "image_file": "products/laptops/lenovo-ideapad-slim-3-15amn8.avif",
+    "specification_source": "https://psref.lenovo.com/Product/IdeaPad/IdeaPad_Slim_3_15AMN8",
+    "image_source_page": "https://psref.lenovo.com/Product/ThinkPad_X1_Carbon_Gen_12?tab=spec",
+    "image_source_url": "https://psrefstuff.lenovo.com/syspool/Sys/Image/ThinkPad/ThinkPad_X1_Carbon_Gen_12/ThinkPad_X1_Carbon_Gen_12_CT1_03.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lenovo-yoga-7i-2-in-1-gen-9-14",
+    "name": "Lenovo Yoga 7i 2-in-1 Gen 9 14",
+    "brand": "Lenovo",
+    "image_file": "products/laptops/lenovo-yoga-7i-2-in-1-gen-9-14.avif",
+    "specification_source": "https://psref.lenovo.com/Product/Yoga/Yoga_7_2_in_1_14IML9",
+    "image_source_page": "https://psref.lenovo.com/Product/ThinkPad_X1_Carbon_Gen_12?tab=spec",
+    "image_source_url": "https://psrefstuff.lenovo.com/syspool/Sys/Image/ThinkPad/ThinkPad_X1_Carbon_Gen_12/ThinkPad_X1_Carbon_Gen_12_CT1_03.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lenovo-thinkpad-x1-carbon-gen-12",
+    "name": "Lenovo ThinkPad X1 Carbon Gen 12",
+    "brand": "Lenovo",
+    "image_file": "products/laptops/lenovo-thinkpad-x1-carbon-gen-12.avif",
+    "specification_source": "https://psref.lenovo.com/Detail/ThinkPad/ThinkPad_X1_Carbon_Gen_12?M=21KC0051MB",
+    "image_source_page": "https://psref.lenovo.com/Product/ThinkPad_X1_Carbon_Gen_12?tab=spec",
+    "image_source_url": "https://psrefstuff.lenovo.com/syspool/Sys/Image/ThinkPad/ThinkPad_X1_Carbon_Gen_12/ThinkPad_X1_Carbon_Gen_12_CT1_03.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lenovo-legion-5i-gen-9-16irx9",
+    "name": "Lenovo Legion 5i Gen 9 16IRX9",
+    "brand": "Lenovo",
+    "image_file": "products/laptops/lenovo-legion-5i-gen-9-16irx9.avif",
+    "specification_source": "https://psref.lenovo.com/Product/Legion/Legion_5_16IRX9",
+    "image_source_page": "https://psref.lenovo.com/Product/ThinkPad_X1_Carbon_Gen_12?tab=spec",
+    "image_source_url": "https://psrefstuff.lenovo.com/syspool/Sys/Image/ThinkPad/ThinkPad_X1_Carbon_Gen_12/ThinkPad_X1_Carbon_Gen_12_CT1_03.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lenovo-thinkpad-p1-gen-7",
+    "name": "Lenovo ThinkPad P1 Gen 7",
+    "brand": "Lenovo",
+    "image_file": "products/laptops/lenovo-thinkpad-p1-gen-7.avif",
+    "specification_source": "https://psref.lenovo.com/Product/ThinkPad/ThinkPad_P1_Gen_7",
+    "image_source_page": "https://psref.lenovo.com/Product/ThinkPad_X1_Carbon_Gen_12?tab=spec",
+    "image_source_url": "https://psrefstuff.lenovo.com/syspool/Sys/Image/ThinkPad/ThinkPad_X1_Carbon_Gen_12/ThinkPad_X1_Carbon_Gen_12_CT1_03.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "asus-vivobook-15-x1504va",
+    "name": "ASUS Vivobook 15 X1504VA",
+    "brand": "ASUS",
+    "image_file": "products/laptops/asus-vivobook-15-x1504va.jpg",
+    "specification_source": "https://www.asus.com/laptops/for-home/vivobook/asus-vivobook-15-x1504/techspec/",
+    "image_source_page": "https://www.asus.com/laptops/for-home/vivobook/asus-vivobook-15-x1504/",
+    "image_source_url": "https://dlcdnwebimgs.asus.com/gain/d36bd05d-ae95-45af-9715-a837dbe223f2/",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "asus-zenbook-14-oled-ux3405ma",
+    "name": "ASUS Zenbook 14 OLED UX3405MA",
+    "brand": "ASUS",
+    "image_file": "products/laptops/asus-zenbook-14-oled-ux3405ma.jpg",
+    "specification_source": "https://www.asus.com/laptops/for-home/zenbook/asus-zenbook-14-oled-ux3405/techspec/",
+    "image_source_page": "https://www.asus.com/laptops/for-home/zenbook/asus-zenbook-14-oled-ux3405/",
+    "image_source_url": "https://dlcdnwebimgs.asus.com/gain/be67987f-28c5-40d9-aaa6-d14c3ef73839/",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "asus-expertbook-b9-oled-b9403cva",
+    "name": "ASUS ExpertBook B9 OLED B9403CVA",
+    "brand": "ASUS",
+    "image_file": "products/laptops/asus-expertbook-b9-oled-b9403cva.png",
+    "specification_source": "https://www.asus.com/laptops/for-work/expertbook/expertbook-b9-oled-b9403/techspec/",
+    "image_source_page": "https://www.asus.com/laptops/for-work/expertbook/expertbook-b9-oled-b9403/",
+    "image_source_url": "https://www.asus.com/media/Odin/Websites/global/ProductLine/20240517091716.png",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "asus-rog-zephyrus-g14-ga403uv",
+    "name": "ASUS ROG Zephyrus G14 GA403UV",
+    "brand": "ASUS",
+    "image_file": "products/laptops/asus-rog-zephyrus-g14-ga403uv.png",
+    "specification_source": "https://rog.asus.com/us/laptops/rog-zephyrus/rog-zephyrus-g14-2024/spec/",
+    "image_source_page": "https://rog.asus.com/us/laptops/rog-zephyrus/rog-zephyrus-g14-2024/",
+    "image_source_url": "https://dlcdnwebimgs.asus.com/gain/E0275281-F18B-42C3-A025-3331C35A888F",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "asus-proart-p16-h7606wi",
+    "name": "ASUS ProArt P16 H7606WI",
+    "brand": "ASUS",
+    "image_file": "products/laptops/asus-proart-p16-h7606wi.jpg",
+    "specification_source": "https://www.asus.com/laptops/for-creators/proart/proart-p16-h7606/techspec/",
+    "image_source_page": "https://www.asus.com/laptops/for-creators/proart/proart-p16-h7606/",
+    "image_source_url": "https://dlcdnwebimgs.asus.com/gain/b6f5b8f0-4746-4aca-a64f-18d4ad86b83b/",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "acer-aspire-5-a515-58m",
+    "name": "Acer Aspire 5 A515-58M",
+    "brand": "Acer",
+    "image_file": "products/laptops/acer-aspire-5-a515-58m.jpg",
+    "specification_source": "https://www.acer.com/us-en/support/product-support/Aspire_A515-58M",
+    "image_source_page": "https://www.notebookcheck.net/Acer-Swift-Go-14-SFG14-72.817257.0.html",
+    "image_source_url": "https://www.notebookcheck.net/uploads/tx_nbc2/Acer_Swift_Go_14_SFG14-72.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "acer-swift-go-14-sfg14-72",
+    "name": "Acer Swift Go 14 SFG14-72",
+    "brand": "Acer",
+    "image_file": "products/laptops/acer-swift-go-14-sfg14-72.jpg",
+    "specification_source": "https://www.acer.com/us-en/support/product-support/Swift_SFG14-72",
+    "image_source_page": "https://www.notebookcheck.net/Acer-Swift-Go-14-SFG14-72.817257.0.html",
+    "image_source_url": "https://www.notebookcheck.net/uploads/tx_nbc2/Acer_Swift_Go_14_SFG14-72.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "acer-travelmate-p4-tmp414-53",
+    "name": "Acer TravelMate P4 TMP414-53",
+    "brand": "Acer",
+    "image_file": "products/laptops/acer-travelmate-p4-tmp414-53.jpg",
+    "specification_source": "https://www.acer.com/us-en/support/product-support/TravelMate_TMP414-53",
+    "image_source_page": "https://www.notebookcheck.net/Acer-Swift-Go-14-SFG14-72.817257.0.html",
+    "image_source_url": "https://www.notebookcheck.net/uploads/tx_nbc2/Acer_Swift_Go_14_SFG14-72.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "acer-predator-helios-neo-16-phn16-72",
+    "name": "Acer Predator Helios Neo 16 PHN16-72",
+    "brand": "Acer",
+    "image_file": "products/laptops/acer-predator-helios-neo-16-phn16-72.jpg",
+    "specification_source": "https://www.acer.com/us-en/support/product-support/Predator_PHN16-72",
+    "image_source_page": "https://www.notebookcheck.net/Acer-Swift-Go-14-SFG14-72.817257.0.html",
+    "image_source_url": "https://www.notebookcheck.net/uploads/tx_nbc2/Acer_Swift_Go_14_SFG14-72.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "acer-swift-x-14-sfx14-72g",
+    "name": "Acer Swift X 14 SFX14-72G",
+    "brand": "Acer",
+    "image_file": "products/laptops/acer-swift-x-14-sfx14-72g.jpg",
+    "specification_source": "https://www.acer.com/us-en/support/product-support/Swift_SFX14-72G",
+    "image_source_page": "https://www.notebookcheck.net/Acer-Swift-Go-14-SFG14-72.817257.0.html",
+    "image_source_url": "https://www.notebookcheck.net/uploads/tx_nbc2/Acer_Swift_Go_14_SFG14-72.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "apple-macbook-air-13-m3-16gb-512gb",
+    "name": "Apple MacBook Air 13-inch M3 (16GB/512GB)",
+    "brand": "Apple MacBook",
+    "image_file": "products/laptops/apple-macbook-air-13-m3-16gb-512gb.webp",
+    "specification_source": "https://support.apple.com/en-us/111883",
+    "image_source_page": "https://www.waltons.co.za/buy/13-inch-macbook-air-apple-m3-chip-with-8-core-cpu-and-10-core-gpu-16gb-512gb-ssd-silver",
+    "image_source_url": "https://cdn1.waltons.co.za/product-images/2025/AL988022/13-inch-macbook-air-apple-m3-chip-with-8-core-cpu-and-10-core-gpu-16gb-512gb-ssd-silver-1024x1024.webp",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "apple-macbook-air-15-m3-16gb-512gb",
+    "name": "Apple MacBook Air 15-inch M3 (16GB/512GB)",
+    "brand": "Apple MacBook",
+    "image_file": "products/laptops/apple-macbook-air-15-m3-16gb-512gb.webp",
+    "specification_source": "https://support.apple.com/en-us/111883",
+    "image_source_page": "https://www.waltons.co.za/buy/13-inch-macbook-air-apple-m3-chip-with-8-core-cpu-and-10-core-gpu-16gb-512gb-ssd-silver",
+    "image_source_url": "https://cdn1.waltons.co.za/product-images/2025/AL988022/13-inch-macbook-air-apple-m3-chip-with-8-core-cpu-and-10-core-gpu-16gb-512gb-ssd-silver-1024x1024.webp",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "apple-macbook-pro-14-m3-16gb-1tb",
+    "name": "Apple MacBook Pro 14-inch M3 (16GB/1TB)",
+    "brand": "Apple MacBook",
+    "image_file": "products/laptops/apple-macbook-pro-14-m3-16gb-1tb.jpg",
+    "specification_source": "https://support.apple.com/en-us/111340",
+    "image_source_page": "https://www.apple.com/newsroom/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/",
+    "image_source_url": "https://www.apple.com/newsroom/images/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/tile/Apple-MacBook-Pro-2up-231030.jpg.og.jpg?202608191725",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "apple-macbook-pro-14-m3-pro-18gb-512gb",
+    "name": "Apple MacBook Pro 14-inch M3 Pro (18GB/512GB)",
+    "brand": "Apple MacBook",
+    "image_file": "products/laptops/apple-macbook-pro-14-m3-pro-18gb-512gb.jpg",
+    "specification_source": "https://support.apple.com/en-us/111340",
+    "image_source_page": "https://www.apple.com/newsroom/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/",
+    "image_source_url": "https://www.apple.com/newsroom/images/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/tile/Apple-MacBook-Pro-2up-231030.jpg.og.jpg?202608191725",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "apple-macbook-pro-16-m3-max-64gb-1tb",
+    "name": "Apple MacBook Pro 16-inch M3 Max (64GB/1TB)",
+    "brand": "Apple MacBook",
+    "image_file": "products/laptops/apple-macbook-pro-16-m3-max-64gb-1tb.jpg",
+    "specification_source": "https://support.apple.com/en-us/111340",
+    "image_source_page": "https://www.apple.com/newsroom/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/",
+    "image_source_url": "https://www.apple.com/newsroom/images/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/tile/Apple-MacBook-Pro-2up-231030.jpg.og.jpg?202608191725",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "msi-modern-14-c13m",
+    "name": "MSI Modern 14 C13M",
+    "brand": "MSI",
+    "image_file": "products/laptops/msi-modern-14-c13m.webp",
+    "specification_source": "https://www.msi.com/Business-Productivity/Modern-14-C13X/Specification",
+    "image_source_page": "https://www.blibli.com/p/msi-modern-14-c13m-1046-1049-notebook-core-i7-1355u-16gb-512gb-ssd-14-fhd-ips-win-11-home-ohs-2021/ps--SOM-60023-04755",
+    "image_source_url": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-170182701/msi_msi_modern_14_c13m_1046_1049_notebook_-core_i7_1355u-16gb-512gb_ssd-14-_fhd_ips-win_11_home_-_ohs_2021-_full01_vuni3tj9.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "msi-prestige-14-ai-evo-c1m",
+    "name": "MSI Prestige 14 AI Evo C1M",
+    "brand": "MSI",
+    "image_file": "products/laptops/msi-prestige-14-ai-evo-c1m.webp",
+    "specification_source": "https://www.msi.com/Business-Productivity/Prestige-14-AI-Evo-C1MX/Specification",
+    "image_source_page": "https://www.blibli.com/p/msi-modern-14-c13m-1046-1049-notebook-core-i7-1355u-16gb-512gb-ssd-14-fhd-ips-win-11-home-ohs-2021/ps--SOM-60023-04755",
+    "image_source_url": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-170182701/msi_msi_modern_14_c13m_1046_1049_notebook_-core_i7_1355u-16gb-512gb_ssd-14-_fhd_ips-win_11_home_-_ohs_2021-_full01_vuni3tj9.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "msi-summit-e16-ai-evo-a1mt",
+    "name": "MSI Summit E16 AI Evo A1MT",
+    "brand": "MSI",
+    "image_file": "products/laptops/msi-summit-e16-ai-evo-a1mt.webp",
+    "specification_source": "https://www.msi.com/Business-Productivity/Summit-E16-AI-Evo-A1MX/Specification",
+    "image_source_page": "https://www.blibli.com/p/msi-modern-14-c13m-1046-1049-notebook-core-i7-1355u-16gb-512gb-ssd-14-fhd-ips-win-11-home-ohs-2021/ps--SOM-60023-04755",
+    "image_source_url": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-170182701/msi_msi_modern_14_c13m_1046_1049_notebook_-core_i7_1355u-16gb-512gb_ssd-14-_fhd_ips-win_11_home_-_ohs_2021-_full01_vuni3tj9.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "msi-katana-15-b13v",
+    "name": "MSI Katana 15 B13V",
+    "brand": "MSI",
+    "image_file": "products/laptops/msi-katana-15-b13v.webp",
+    "specification_source": "https://www.msi.com/Laptop/Katana-15-B13VX/Specification",
+    "image_source_page": "https://www.blibli.com/p/msi-modern-14-c13m-1046-1049-notebook-core-i7-1355u-16gb-512gb-ssd-14-fhd-ips-win-11-home-ohs-2021/ps--SOM-60023-04755",
+    "image_source_url": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-170182701/msi_msi_modern_14_c13m_1046_1049_notebook_-core_i7_1355u-16gb-512gb_ssd-14-_fhd_ips-win_11_home_-_ohs_2021-_full01_vuni3tj9.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "msi-creator-z17-hx-studio-a13v",
+    "name": "MSI Creator Z17 HX Studio A13V",
+    "brand": "MSI",
+    "image_file": "products/laptops/msi-creator-z17-hx-studio-a13v.webp",
+    "specification_source": "https://www.msi.com/Content-Creation/Creator-Z17-HX-Studio-A13VX/Specification",
+    "image_source_page": "https://www.blibli.com/p/msi-modern-14-c13m-1046-1049-notebook-core-i7-1355u-16gb-512gb-ssd-14-fhd-ips-win-11-home-ohs-2021/ps--SOM-60023-04755",
+    "image_source_url": "https://www.static-src.com/wcsstore/Indraprastha/images/catalog/full/catalog-image/MTA-170182701/msi_msi_modern_14_c13m_1046_1049_notebook_-core_i7_1355u-16gb-512gb_ssd-14-_fhd_ips-win_11_home_-_ohs_2021-_full01_vuni3tj9.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "samsung-galaxy-book4-np750xgj",
+    "name": "Samsung Galaxy Book4 NP750XGJ",
+    "brand": "Samsung",
+    "image_file": "products/laptops/samsung-galaxy-book4-np750xgj.png",
+    "specification_source": "https://www.samsung.com/us/computers/galaxy-book4/buy/galaxy-book4-15-6-intel-core-7-512gb-gray-np750xgj-kg1us/",
+    "image_source_page": "https://sinsungcns.com/goods/view?no=4008",
+    "image_source_url": "https://sinsungcns.com/data/_custom/cus_bbs/_mig/not_specified/20250310182834727130383.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "samsung-galaxy-book4-360-np750qgk",
+    "name": "Samsung Galaxy Book4 360 NP750QGK",
+    "brand": "Samsung",
+    "image_file": "products/laptops/samsung-galaxy-book4-360-np750qgk.png",
+    "specification_source": "https://www.samsung.com/us/computers/galaxy-book4/buy/galaxy-book4-360-15-6-intel-core-7-512gb-gray-np750qgk-kg1us/",
+    "image_source_page": "https://sinsungcns.com/goods/view?no=4008",
+    "image_source_url": "https://sinsungcns.com/data/_custom/cus_bbs/_mig/not_specified/20250310182834727130383.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "samsung-galaxy-book4-pro-14-np940xgk",
+    "name": "Samsung Galaxy Book4 Pro 14 NP940XGK",
+    "brand": "Samsung",
+    "image_file": "products/laptops/samsung-galaxy-book4-pro-14-np940xgk.png",
+    "specification_source": "https://www.samsung.com/us/computers/galaxy-book4/buy/galaxy-book4-pro-14-intel-core-ultra-7-512gb-moonstone-gray-np940xgk-kg1us/",
+    "image_source_page": "https://sinsungcns.com/goods/view?no=4008",
+    "image_source_url": "https://sinsungcns.com/data/_custom/cus_bbs/_mig/not_specified/20250310182834727130383.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "samsung-galaxy-book4-ultra-np960xgl",
+    "name": "Samsung Galaxy Book4 Ultra NP960XGL",
+    "brand": "Samsung",
+    "image_file": "products/laptops/samsung-galaxy-book4-ultra-np960xgl.png",
+    "specification_source": "https://www.samsung.com/us/computers/galaxy-book4/buy/galaxy-book4-ultra-16-intel-core-ultra-9-1tb-moonstone-gray-np960xgl-xg1us/",
+    "image_source_page": "https://sinsungcns.com/goods/view?no=4008",
+    "image_source_url": "https://sinsungcns.com/data/_custom/cus_bbs/_mig/not_specified/20250310182834727130383.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "samsung-galaxy-book4-edge-14",
+    "name": "Samsung Galaxy Book4 Edge 14",
+    "brand": "Samsung",
+    "image_file": "products/laptops/samsung-galaxy-book4-edge-14.png",
+    "specification_source": "https://www.samsung.com/us/computers/galaxy-book4/buy/galaxy-book4-edge-14-512gb-sapphire-blue-np940xma-kb1us/",
+    "image_source_page": "https://sinsungcns.com/goods/view?no=4008",
+    "image_source_url": "https://sinsungcns.com/data/_custom/cus_bbs/_mig/not_specified/20250310182834727130383.png",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "microsoft-surface-laptop-go-3",
+    "name": "Microsoft Surface Laptop Go 3",
+    "brand": "Microsoft Surface",
+    "image_file": "products/laptops/microsoft-surface-laptop-go-3.jpg",
+    "specification_source": "https://support.microsoft.com/en-us/surface/surface-laptop-go-3-features-and-specs-6ed96c62-4835-4b56-b3de-4c5a1a1be0d5",
+    "image_source_page": "https://www.harveynorman.com.au/microsoft-surface-laptop-5-13-5-inch-i5-1235u-16gb-512gb-ssd-laptop-graphite.html",
+    "image_source_url": "https://hnau.imgix.net/media/catalog/product/s/u/surface-laptop-5-graphite-5_1_4.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "microsoft-surface-laptop-5-13-5",
+    "name": "Microsoft Surface Laptop 5 13.5-inch",
+    "brand": "Microsoft Surface",
+    "image_file": "products/laptops/microsoft-surface-laptop-5-13-5.jpg",
+    "specification_source": "https://support.microsoft.com/en-us/surface/surface-laptop-5-features-and-specs-9d3b395d-f6e2-4a43-91ce-1390d3f2f46e",
+    "image_source_page": "https://www.microsoft.com/en-us/d/surface-laptop-5/8xn49v61s1bn",
+    "image_source_url": "https://images.ctfassets.net/jy9s7k22hbg4/7vvUfkCAzo0Dqi4g39wEaS/a21b77491e6680a89bfa31158142ed60/msft-surface-laptop-hero-desktop-multi-poster-fy26.jpg",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "microsoft-surface-laptop-5-15",
+    "name": "Microsoft Surface Laptop 5 15-inch",
+    "brand": "Microsoft Surface",
+    "image_file": "products/laptops/microsoft-surface-laptop-5-15.jpg",
+    "specification_source": "https://support.microsoft.com/en-us/surface/surface-laptop-5-features-and-specs-9d3b395d-f6e2-4a43-91ce-1390d3f2f46e",
+    "image_source_page": "https://www.microsoft.com/en-us/d/surface-laptop-5/8xn49v61s1bn",
+    "image_source_url": "https://images.ctfassets.net/jy9s7k22hbg4/7vvUfkCAzo0Dqi4g39wEaS/a21b77491e6680a89bfa31158142ed60/msft-surface-laptop-hero-desktop-multi-poster-fy26.jpg",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "microsoft-surface-laptop-studio-2",
+    "name": "Microsoft Surface Laptop Studio 2",
+    "brand": "Microsoft Surface",
+    "image_file": "products/laptops/microsoft-surface-laptop-studio-2.jpg",
+    "specification_source": "https://support.microsoft.com/en-us/surface/surface-laptop-studio-2-features-and-specs-9c8bf1ae-8552-4dd8-9b37-8fb3df8877e2",
+    "image_source_page": "https://www.microsoft.com/en-us/d/surface-laptop-studio-2/8rqr54krf1dz",
+    "image_source_url": "https://images.ctfassets.net/jy9s7k22hbg4/bPyR4d56RSSOiaVbkcwg3/1bed11417da6f9748a733a2179465339/COM_100_Heo_Desktop_Poster.jpg",
+    "image_source_method": "source page Open Graph metadata"
+  },
+  {
+    "slug": "microsoft-surface-pro-9",
+    "name": "Microsoft Surface Pro 9",
+    "brand": "Microsoft Surface",
+    "image_file": "products/laptops/microsoft-surface-pro-9.jpg",
+    "specification_source": "https://support.microsoft.com/en-us/surface/surface-pro-9-features-and-specs-6b0e2777-7b0b-4a75-8b63-4d5b2a0cfece",
+    "image_source_page": "https://www.harveynorman.com.au/microsoft-surface-laptop-5-13-5-inch-i5-1235u-16gb-512gb-ssd-laptop-graphite.html",
+    "image_source_url": "https://hnau.imgix.net/media/catalog/product/s/u/surface-laptop-5-graphite-5_1_4.jpg",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lg-gram-14z90s",
+    "name": "LG gram 14Z90S",
+    "brand": "LG",
+    "image_file": "products/laptops/lg-gram-14z90s.avif",
+    "specification_source": "https://www.lg.com/us/laptops/lg-14z90s-r-aad9u1-gram-laptop",
+    "image_source_page": "https://www.lg.com/us/laptops/lg-16z90s-g.adb9u1-gram-laptop",
+    "image_source_url": "https://media.us.lg.com/transform/ecomm-PDPGallery-1100x730/7a4f0d6c-6442-4ec1-950d-1e53a27aee61/16Z90S-G-ADB9U1_gallery_03_5000x5000?io=transform%3Afill%2Cwidth%3A1536",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lg-gram-16z90s",
+    "name": "LG gram 16Z90S",
+    "brand": "LG",
+    "image_file": "products/laptops/lg-gram-16z90s.avif",
+    "specification_source": "https://www.lg.com/us/laptops/lg-16z90s-r-aad9u1-gram-laptop",
+    "image_source_page": "https://www.lg.com/us/laptops/lg-16z90s-g.adb9u1-gram-laptop",
+    "image_source_url": "https://media.us.lg.com/transform/ecomm-PDPGallery-1100x730/7a4f0d6c-6442-4ec1-950d-1e53a27aee61/16Z90S-G-ADB9U1_gallery_03_5000x5000?io=transform%3Afill%2Cwidth%3A1536",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lg-gram-17z90s",
+    "name": "LG gram 17Z90S",
+    "brand": "LG",
+    "image_file": "products/laptops/lg-gram-17z90s.avif",
+    "specification_source": "https://www.lg.com/us/laptops/lg-17z90s-r-aad9u1-gram-laptop",
+    "image_source_page": "https://www.lg.com/us/laptops/lg-16z90s-g.adb9u1-gram-laptop",
+    "image_source_url": "https://media.us.lg.com/transform/ecomm-PDPGallery-1100x730/7a4f0d6c-6442-4ec1-950d-1e53a27aee61/16Z90S-G-ADB9U1_gallery_03_5000x5000?io=transform%3Afill%2Cwidth%3A1536",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lg-gram-pro-16z90sp",
+    "name": "LG gram Pro 16Z90SP",
+    "brand": "LG",
+    "image_file": "products/laptops/lg-gram-pro-16z90sp.avif",
+    "specification_source": "https://www.lg.com/us/laptops/lg-16z90sp-k-aab8u1-gram-pro-laptop",
+    "image_source_page": "https://www.lg.com/us/laptops/lg-16z90s-g.adb9u1-gram-laptop",
+    "image_source_url": "https://media.us.lg.com/transform/ecomm-PDPGallery-1100x730/7a4f0d6c-6442-4ec1-950d-1e53a27aee61/16Z90S-G-ADB9U1_gallery_03_5000x5000?io=transform%3Afill%2Cwidth%3A1536",
+    "image_source_method": "documented brand-family fallback"
+  },
+  {
+    "slug": "lg-gram-style-14z90rs",
+    "name": "LG gram Style 14Z90RS",
+    "brand": "LG",
+    "image_file": "products/laptops/lg-gram-style-14z90rs.avif",
+    "specification_source": "https://www.lg.com/us/laptops/lg-14z90rs-k-aab7u1-gram-style-laptop",
+    "image_source_page": "https://www.lg.com/us/laptops/lg-16z90s-g.adb9u1-gram-laptop",
+    "image_source_url": "https://media.us.lg.com/transform/ecomm-PDPGallery-1100x730/7a4f0d6c-6442-4ec1-950d-1e53a27aee61/16Z90S-G-ADB9U1_gallery_03_5000x5000?io=transform%3Afill%2Cwidth%3A1536",
+    "image_source_method": "documented brand-family fallback"
+  }
+]

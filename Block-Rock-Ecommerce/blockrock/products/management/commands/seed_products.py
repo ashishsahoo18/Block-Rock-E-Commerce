@@ -157,14 +157,20 @@ class Command(BaseCommand):
             )
             seeded_product_names.add(name)
 
-        # Deactivate any non-catalog dummy products to ensure active count is exactly 50
-        deactivated = Product.objects.filter(is_ingot_original=False).exclude(name__in=seeded_product_names).update(is_active=False)
+        # Only clean up records owned by this legacy INGOT electronics seed set.
+        # Third-party catalogue products and products created through Django Admin
+        # must never be archived merely because this command is run again.
+        deactivated = (
+            Product.objects.filter(is_ingot_original=False, brand='INGOT')
+            .exclude(name__in=seeded_product_names)
+            .update(is_active=False)
+        )
 
         active_count = Product.objects.filter(is_active=True).count()
         total_count = Product.objects.count()
 
         self.stdout.write(self.style.SUCCESS(
             f'Seeded {len(category_map)} categories and {len(seeded_product_names)} INGOT electronics products.\n'
-            f'Deactivated {deactivated} non-catalogue products.\n'
+            f'Deactivated {deactivated} legacy INGOT non-catalogue products.\n'
             f'Active product count: {active_count} | Total DB product count: {total_count}'
         ))

@@ -1,5 +1,7 @@
+from collections import Counter
 from decimal import Decimal
 from django.contrib.auth.models import User
+from django.core.management.base import CommandError
 from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse
@@ -141,6 +143,68 @@ class ProductCatalogueAndShopTests(TestCase):
         resp_orig = self.client.get(reverse('products'), {'collection': 'ingot_originals'})
         self.assertEqual(resp_orig.status_code, 200)
         self.assertEqual(resp_orig.context['total_results'], 20)
+
+
+class LaptopCatalogueSeedTests(TestCase):
+    """Keep the curated laptop catalogue complete, balanced, and non-destructive."""
+
+    def test_source_data_has_exactly_fifty_balanced_laptops(self):
+        from products.laptop_catalogue import LAPTOPS
+
+        self.assertEqual(len(LAPTOPS), 50)
+        self.assertEqual(len({laptop['slug'] for laptop in LAPTOPS}), 50)
+        self.assertEqual(
+            Counter(laptop['brand'] for laptop in LAPTOPS),
+            Counter({
+                'HP': 5,
+                'Dell': 5,
+                'Lenovo': 5,
+                'ASUS': 5,
+                'Acer': 5,
+                'Apple MacBook': 5,
+                'MSI': 5,
+                'Samsung': 5,
+                'Microsoft Surface': 5,
+                'LG': 5,
+            }),
+        )
+
+    def test_seed_command_is_idempotent_and_preserves_other_products(self):
+        accessories = Category.objects.create(name='Accessories', slug='accessories')
+        retained_product = Product.objects.create(
+            name='Existing admin product',
+            slug='existing-admin-product',
+            category=accessories,
+            brand='Block Rock',
+            description='A live product that is outside the laptop import.',
+            price=Decimal('999.00'),
+            stock=2,
+            is_active=True,
+        )
+
+        call_command('seed_laptop_catalogue')
+        call_command('seed_laptop_catalogue')
+
+        laptops = Product.objects.filter(category__slug='laptops', is_active=True)
+        self.assertEqual(laptops.count(), 50)
+        self.assertEqual(laptops.values('slug').distinct().count(), 50)
+        self.assertTrue(Product.objects.get(pk=retained_product.pk).is_active)
+
+    def test_seed_command_refuses_to_overwrite_an_unmanaged_active_laptop(self):
+        laptops = Category.objects.create(name='Laptops', slug='laptops')
+        Product.objects.create(
+            name='Existing laptop',
+            slug='existing-laptop',
+            category=laptops,
+            brand='Block Rock',
+            description='An active admin-managed laptop.',
+            price=Decimal('999.00'),
+            stock=1,
+            is_active=True,
+        )
+
+        with self.assertRaises(CommandError):
+            call_command('seed_laptop_catalogue')
 
 
 class IngotNewFeaturesTests(TestCase):
@@ -393,6 +457,40 @@ class AdminCatalogueManagementTests(TestCase):
             data['is_active'] = 'on'
         data.update(self._inline_management_data())
         return data
+
+    def test_admin_catalogue_filters_by_brand_price_and_availability(self):
+        laptops = Category.objects.create(name='Laptops', slug='laptops')
+        matching_product = Product.objects.create(
+            name='ASUS in-stock laptop',
+            slug='asus-in-stock-laptop',
+            category=laptops,
+            brand='ASUS',
+            description='Matches every catalogue filter.',
+            price=Decimal('69999.00'),
+            discount_price=Decimal('69999.00'),
+            stock=3,
+            is_active=True,
+        )
+        Product.objects.create(
+            name='Dell unavailable laptop',
+            slug='dell-unavailable-laptop',
+            category=laptops,
+            brand='Dell',
+            description='Does not match the requested catalogue filters.',
+            price=Decimal('149999.00'),
+            discount_price=Decimal('149999.00'),
+            stock=0,
+            is_active=True,
+        )
+
+        response = self.client.get(
+            reverse('admin:products_product_changelist'),
+            {'brand': 'ASUS', 'availability': 'in_stock', 'price_range': 'under_75000'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, matching_product.name)
+        self.assertNotContains(response, 'Dell unavailable laptop')
 
     def test_admin_can_create_and_deactivate_a_storefront_product(self):
         add_url = reverse('admin:products_product_add')
